@@ -1,0 +1,6 @@
+{
+  "name": "OrbitMind",
+  "description": "Orbital mind mapping and brainstorming app featuring nested circular maps, radial universe navigation, notes, checklists, and rich visual styling.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

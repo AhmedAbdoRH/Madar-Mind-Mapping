@@ -1,0 +1,126 @@
+<resources>
+    <string name="app_name">OrbitMind</string>
+
+    <!-- General & Actions -->
+    <string name="action_cancel">إلغاء</string>
+    <string name="action_save">حفظ</string>
+    <string name="action_save_changes">حفظ التعديلات</string>
+    <string name="action_create">إنشاء</string>
+    <string name="action_create_node">إنشاء العقدة</string>
+    <string name="action_delete">حذف</string>
+    <string name="action_duplicate">تكرار</string>
+    <string name="action_close">إغلاق</string>
+    <string name="action_back">رجوع</string>
+    <string name="action_clear">مسح</string>
+    <string name="action_more">المزيد</string>
+    <string name="action_less">أقل</string>
+    <string name="action_options">خيارات</string>
+    <string name="action_search">بحث</string>
+    <string name="action_outline">المخطط الشجري</string>
+    <string name="action_none">بدون</string>
+    <string name="action_selected">محدد</string>
+
+    <!-- Universe List Screen -->
+    <string name="universe_list_title">OrbitMind</string>
+    <string name="search_maps_placeholder">البحث في الخرائط الذهنية...</string>
+    <string name="no_maps_title">لا توجد خرائط ذهنية بعد</string>
+    <string name="no_maps_subtitle">اضغط على زر + في الأسفل على اليسار لإنشاء خريطة جديدة</string>
+    <string name="no_search_results_title">لم يتم العثور على نتائج</string>
+    <string name="no_search_results_subtitle">جرب البحث بكلمة مختلفة</string>
+    <string name="create_mind_map_cd">إنشاء خريطة ذهنية</string>
+
+    <!-- Theme Modes -->
+    <string name="theme_dark">🌙 الوضع الليلي</string>
+    <string name="theme_light">☀️ الوضع المضيء</string>
+    <string name="theme_system">⚙️ حسب النظام</string>
+    <string name="toggle_dark_mode_cd">تبديل المظهر</string>
+
+    <!-- Mind Map Screen & Canvas -->
+    <string name="search_idea_placeholder">ابحث عن فكرة في الخريطة...</string>
+    <string name="matches_found_count">%1$d فكرة مطابقة</string>
+    <string name="reset_angle">إعادة ضبط الزاوية</string>
+    <string name="reset_angle_cd">إعادة ضبط دوران المدار</string>
+    <string name="depth_indicator">العمق %1$d</string>
+    <string name="add_idea_node_cd">إضافة عقدة فكرة</string>
+    <string name="drop_held_node_cd">إسقاط العقدة المحتجزة</string>
+    <string name="return_to_parent_cd">الرجوع للمدار الأبوي</string>
+    <string name="edit_center_cd">تعديل المركز</string>
+
+    <!-- Create Map Dialog -->
+    <string name="create_map_title">خريطة ذهنية جديدة</string>
+    <string name="create_map_subtitle">أنشئ خريطة مدارية لأفكارك ومشاريعك</string>
+    <string name="map_name_label">اسم الخريطة / الموضوع الرئيسي</string>
+    <string name="map_name_placeholder">مثال: خطة النمو، رحلة طوكيو، تطبيق المدار</string>
+    <string name="description_optional_label">الوصف (اختياري)</string>
+    <string name="map_desc_placeholder">اكتب نبذة مختصرة عن هدف الخريطة...</string>
+    <string name="core_theme_color">لون المدار الأساسي</string>
+    <string name="core_icon">رمز المركز</string>
+
+    <!-- Add Node Dialog -->
+    <string name="add_idea_node_title">إضافة عقدة فكرة</string>
+    <string name="orbiting_parent_subtitle">تدور حول \'%1$s\'</string>
+    <string name="idea_title_label">عنوان الفكرة</string>
+    <string name="idea_title_placeholder">مثال: المواصفات، واجهة المستخدم، الخادم</string>
+    <string name="color_theme_label">لون الفكرة</string>
+    <string name="icon_symbol_optional">الرمز التعبيري (اختياري)</string>
+    <string name="quick_note_optional">ملاحظة سريعة (اختياري)</string>
+    <string name="quick_note_placeholder">أضف تفاصيل، أهداف أو تذكيرات...</string>
+
+    <!-- Node Detail Dialog -->
+    <string name="central_map_core">نواة الخريطة المركزية</string>
+    <string name="idea_node">عقدة فكرة</string>
+    <string name="unnamed_idea">فكرة غير معنونة</string>
+    <string name="node_title_label">العنوان</string>
+    <string name="tab_notes">الملاحظات</string>
+    <string name="tab_tasks">المهام</string>
+    <string name="tab_style">المظهر</string>
+    <string name="tab_link">الرابط</string>
+    <string name="notes_placeholder">اكتب ملاحظاتك، تفاصيل الفكرة أو أفكارك هنا...</string>
+    <string name="new_task_placeholder">إضافة مهمة لقائمة الفحص...</string>
+    <string name="add_task_cd">إضافة مهمة</string>
+    <string name="no_tasks_yet">لا توجد مهام مضافة بعد</string>
+    <string name="node_color">لون العقدة</string>
+    <string name="node_icon">رمز العقدة</string>
+    <string name="link_url_label">رابط ويب أو مرجع</string>
+    <string name="link_url_placeholder">https://example.com</string>
+    <string name="open_link">فتح الرابط</string>
+    <string name="delete_node_cd">حذف العقدة</string>
+    <string name="hold_in_pocket_cd">احتجاز في الجيب المداري</string>
+    <string name="delete_node_dialog_title">حذف الفكرة ومداراتها؟</string>
+    <string name="delete_node_dialog_msg">هل أنت متأكد من رغبتك في إزالة \'%1$s\' وجميع الأفكار والمدارات الفرعية التابعة لها؟</string>
+
+    <!-- Quick Action Menu -->
+    <string name="quick_actions_subtitle">إجراءات العقدة السريعة</string>
+    <string name="synced_badge">متزامنة حياً</string>
+    <string name="action_hold_pocket_title">احتجاز في حلقة النقل / الجيب المداري</string>
+    <string name="action_hold_pocket_desc">حفظ العقدة لنقلها أو استنساخها أو مزامنتها في أي مدار آخر</string>
+    <string name="action_edit_details_title">تعديل التفاصيل والألوان</string>
+    <string name="action_edit_details_desc">تغيير العنوان، الملاحظات، المهام والرموز</string>
+    <string name="action_delete_node_title">حذف العقدة ومداراتها</string>
+    <string name="action_delete_node_desc">إزالة هذا الكوكب وجميع مداراته الفرعية</string>
+
+    <!-- Orbital Pocket Action Sheet -->
+    <string name="pocket_sheet_title">حلقة الجيب المداري للنقل والمزامنة</string>
+    <string name="pocket_sheet_subtitle">العقدة المحتجزة جاهزة للإسقاط</string>
+    <string name="target_orbit_label">المدار الهدف: مدار [%1$s]</string>
+    <string name="choose_pocket_action">اختر الإجراء المطلوب تطبيقه في هذا المدار:</string>
+    <string name="sync_twin_title">مزامنة حية متطابقة (Live Sync Twin)</string>
+    <string name="sync_twin_desc">إسقاط كتوأم حي متزامن — أي تعديل في أي طرف ينعكس على الآخر فوراً!</string>
+    <string name="sync_twin_badge">مزامنة حية</string>
+    <string name="clone_copy_title">استنساخ شجرة كاملة (Clone)</string>
+    <string name="clone_copy_desc">إنشاء نسخة مستقلة تماماً بجميع تفاصيلها ومداراتها الفرعية</string>
+    <string name="clone_copy_badge">نسخة مستقلة</string>
+    <string name="move_here_title">نقل المدار إلى هنا (Move)</string>
+    <string name="move_here_desc">نقل العقدة وفروعها كلياً من موضعها القديم إلى هذا المدار</string>
+    <string name="move_here_badge">نقل مباشر</string>
+    <string name="action_clear_pocket">تفريغ الجيب</string>
+
+    <!-- Outline Sheet -->
+    <string name="map_outline_title">المخطط الشجري للخريطة</string>
+    <string name="total_concepts_count">%1$d فكرة إجمالية في \'%2$s\'</string>
+    <string name="filter_concepts_placeholder">تصفية الأفكار والبحث...</string>
+    <string name="copy_outline">نسخ المخطط</string>
+    <string name="share_outline">مشاركة المخطط</string>
+    <string name="outline_copied_toast">تم نسخ المخطط بصيغة Markdown إلى الحافظة!</string>
+    <string name="share_mind_map_chooser">مشاركة الخريطة الذهنية</string>
+</resources>

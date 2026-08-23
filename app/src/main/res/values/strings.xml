@@ -1,0 +1,126 @@
+<resources>
+    <string name="app_name">OrbitMind</string>
+
+    <!-- General & Actions -->
+    <string name="action_cancel">Cancel</string>
+    <string name="action_save">Save</string>
+    <string name="action_save_changes">Save Changes</string>
+    <string name="action_create">Create</string>
+    <string name="action_create_node">Create Node</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_duplicate">Duplicate</string>
+    <string name="action_close">Close</string>
+    <string name="action_back">Back</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_more">More</string>
+    <string name="action_less">Less</string>
+    <string name="action_options">Options</string>
+    <string name="action_search">Search</string>
+    <string name="action_outline">Outline</string>
+    <string name="action_none">None</string>
+    <string name="action_selected">Selected</string>
+
+    <!-- Universe List Screen -->
+    <string name="universe_list_title">OrbitMind</string>
+    <string name="search_maps_placeholder">Search mind maps...</string>
+    <string name="no_maps_title">No mind maps yet</string>
+    <string name="no_maps_subtitle">Tap + on the bottom left to create one</string>
+    <string name="no_search_results_title">No results found</string>
+    <string name="no_search_results_subtitle">Try searching with a different word</string>
+    <string name="create_mind_map_cd">Create Mind Map</string>
+
+    <!-- Theme Modes -->
+    <string name="theme_dark">🌙 Dark Mode</string>
+    <string name="theme_light">☀️ Light Mode</string>
+    <string name="theme_system">⚙️ System Default</string>
+    <string name="toggle_dark_mode_cd">Toggle Dark Mode</string>
+
+    <!-- Mind Map Screen & Canvas -->
+    <string name="search_idea_placeholder">Find idea in mind map...</string>
+    <string name="matches_found_count">%1$d matches found</string>
+    <string name="reset_angle">Reset Angle</string>
+    <string name="reset_angle_cd">Reset rotation</string>
+    <string name="depth_indicator">Depth %1$d</string>
+    <string name="add_idea_node_cd">Add Idea Node</string>
+    <string name="drop_held_node_cd">Drop Held Node</string>
+    <string name="return_to_parent_cd">Return to parent orbit</string>
+    <string name="edit_center_cd">Edit Center</string>
+
+    <!-- Create Map Dialog -->
+    <string name="create_map_title">New Mind Map</string>
+    <string name="create_map_subtitle">Create an orbital mind map for your ideas</string>
+    <string name="map_name_label">Mind Map Name / Topic</string>
+    <string name="map_name_placeholder">e.g. Q3 Growth Strategy, Tokyo Trip</string>
+    <string name="description_optional_label">Description (Optional)</string>
+    <string name="map_desc_placeholder">Briefly describe what this mind map is for...</string>
+    <string name="core_theme_color">Core Theme Color</string>
+    <string name="core_icon">Core Icon</string>
+
+    <!-- Add Node Dialog -->
+    <string name="add_idea_node_title">Add Idea Node</string>
+    <string name="orbiting_parent_subtitle">Orbiting \'%1$s\'</string>
+    <string name="idea_title_label">Idea Title</string>
+    <string name="idea_title_placeholder">e.g. Design Specs, Backend API</string>
+    <string name="color_theme_label">Color Theme</string>
+    <string name="icon_symbol_optional">Icon Symbol (Optional)</string>
+    <string name="quick_note_optional">Quick Note (Optional)</string>
+    <string name="quick_note_placeholder">Add details, reminders, or goals...</string>
+
+    <!-- Node Detail Dialog -->
+    <string name="central_map_core">Central Map Core</string>
+    <string name="idea_node">Idea Node</string>
+    <string name="unnamed_idea">Unnamed Idea</string>
+    <string name="node_title_label">Title</string>
+    <string name="tab_notes">Notes</string>
+    <string name="tab_tasks">Tasks</string>
+    <string name="tab_style">Style</string>
+    <string name="tab_link">Link</string>
+    <string name="notes_placeholder">Write your notes, thoughts, or details here...</string>
+    <string name="new_task_placeholder">Add checklist task...</string>
+    <string name="add_task_cd">Add task</string>
+    <string name="no_tasks_yet">No tasks added yet</string>
+    <string name="node_color">Node Color</string>
+    <string name="node_icon">Node Icon</string>
+    <string name="link_url_label">Web Link / Resource URL</string>
+    <string name="link_url_placeholder">https://example.com</string>
+    <string name="open_link">Open Link</string>
+    <string name="delete_node_cd">Delete Planet</string>
+    <string name="hold_in_pocket_cd">Hold in Orbital Pocket</string>
+    <string name="delete_node_dialog_title">Delete Idea &amp; Orbits?</string>
+    <string name="delete_node_dialog_msg">Are you sure you want to remove \'%1$s\' and all of its orbiting sub-ideas?</string>
+
+    <!-- Quick Action Menu -->
+    <string name="quick_actions_subtitle">Node Quick Actions</string>
+    <string name="synced_badge">Synced</string>
+    <string name="action_hold_pocket_title">Hold in Orbital Pocket</string>
+    <string name="action_hold_pocket_desc">Hold node to move, clone, or sync into any orbit</string>
+    <string name="action_edit_details_title">Edit Details &amp; Styles</string>
+    <string name="action_edit_details_desc">Change title, notes, tasks, colors and icon</string>
+    <string name="action_delete_node_title">Delete Node &amp; Orbits</string>
+    <string name="action_delete_node_desc">Remove this planet and all of its sub-orbits</string>
+
+    <!-- Orbital Pocket Action Sheet -->
+    <string name="pocket_sheet_title">Orbital Pocket</string>
+    <string name="pocket_sheet_subtitle">Held node ready for placement</string>
+    <string name="target_orbit_label">Target: Orbit of [%1$s]</string>
+    <string name="choose_pocket_action">Choose desired action for this orbit:</string>
+    <string name="sync_twin_title">Live Sync Twin</string>
+    <string name="sync_twin_desc">Duplicate node as a live mirror — changes to either node sync instantly!</string>
+    <string name="sync_twin_badge">Live Mirror</string>
+    <string name="clone_copy_title">Clone Subtree</string>
+    <string name="clone_copy_desc">Create an independent copy with all its sub-orbits</string>
+    <string name="clone_copy_badge">Independent</string>
+    <string name="move_here_title">Move Orbit Here</string>
+    <string name="move_here_desc">Move node and its sub-orbits entirely from old location to this orbit</string>
+    <string name="move_here_badge">Direct Move</string>
+    <string name="action_clear_pocket">Clear Pocket</string>
+
+    <!-- Outline Sheet -->
+    <string name="map_outline_title">Map Outline</string>
+    <string name="total_concepts_count">%1$d total concepts in \'%2$s\'</string>
+    <string name="filter_concepts_placeholder">Filter concepts...</string>
+    <string name="copy_outline">Copy Outline</string>
+    <string name="share_outline">Share Outline</string>
+    <string name="outline_copied_toast">Markdown copied to clipboard!</string>
+    <string name="share_mind_map_chooser">Share Mind Map</string>
+</resources>
