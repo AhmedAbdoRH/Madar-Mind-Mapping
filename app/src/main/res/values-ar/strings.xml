@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OrbitMind</string>
+    <string name="app_name">مدار</string>
 
     <!-- General & Actions -->
     <string name="action_cancel">إلغاء</string>
@@ -7,6 +7,8 @@
     <string name="action_save_changes">حفظ التعديلات</string>
     <string name="action_create">إنشاء</string>
     <string name="action_create_node">إنشاء العقدة</string>
+    <string name="action_create_node_confirm">إنشاء العقدة</string>
+    <string name="action_create_map_confirm">إنشاء الخريطة</string>
     <string name="action_delete">حذف</string>
     <string name="action_duplicate">تكرار</string>
     <string name="action_close">إغلاق</string>
@@ -14,6 +16,7 @@
     <string name="action_clear">مسح</string>
     <string name="action_more">المزيد</string>
     <string name="action_less">أقل</string>
+    <string name="recent_icons_badge">الأخيرة</string>
     <string name="action_options">خيارات</string>
     <string name="action_search">بحث</string>
     <string name="action_outline">المخطط الشجري</string>
@@ -21,7 +24,7 @@
     <string name="action_selected">محدد</string>
 
     <!-- Universe List Screen -->
-    <string name="universe_list_title">OrbitMind</string>
+    <string name="universe_list_title">مدار</string>
     <string name="search_maps_placeholder">البحث في الخرائط الذهنية...</string>
     <string name="no_maps_title">لا توجد خرائط ذهنية بعد</string>
     <string name="no_maps_subtitle">اضغط على زر + في الأسفل على اليسار لإنشاء خريطة جديدة</string>
@@ -49,21 +52,32 @@
     <!-- Create Map Dialog -->
     <string name="create_map_title">خريطة ذهنية جديدة</string>
     <string name="create_map_subtitle">أنشئ خريطة مدارية لأفكارك ومشاريعك</string>
+    <string name="new_map_dialog_title">خريطة ذهنية جديدة</string>
+    <string name="new_map_dialog_subtitle">أنشئ خريطة مدارية لأفكارك ومشاريعك</string>
     <string name="map_name_label">اسم الخريطة / الموضوع الرئيسي</string>
     <string name="map_name_placeholder">مثال: خطة النمو، رحلة طوكيو، تطبيق المدار</string>
     <string name="description_optional_label">الوصف (اختياري)</string>
+    <string name="map_desc_label">الوصف (اختياري)</string>
     <string name="map_desc_placeholder">اكتب نبذة مختصرة عن هدف الخريطة...</string>
     <string name="core_theme_color">لون المدار الأساسي</string>
+    <string name="core_theme_color_label">لون المدار الأساسي</string>
     <string name="core_icon">رمز المركز</string>
+    <string name="core_icon_label">رمز المركز</string>
 
     <!-- Add Node Dialog -->
     <string name="add_idea_node_title">إضافة عقدة فكرة</string>
+    <string name="add_node_dialog_title">إضافة عقدة فكرة</string>
     <string name="orbiting_parent_subtitle">تدور حول \'%1$s\'</string>
+    <string name="orbiting_parent_format">تدور حول \'%1$s\'</string>
     <string name="idea_title_label">عنوان الفكرة</string>
+    <string name="node_title_placeholder">مثال: المواصفات، واجهة المستخدم، الخادم</string>
     <string name="idea_title_placeholder">مثال: المواصفات، واجهة المستخدم، الخادم</string>
     <string name="color_theme_label">لون الفكرة</string>
     <string name="icon_symbol_optional">الرمز التعبيري (اختياري)</string>
+    <string name="icon_symbol_label">الرمز التعبيري (اختياري)</string>
+    <string name="icon_none">بدون</string>
     <string name="quick_note_optional">ملاحظة سريعة (اختياري)</string>
+    <string name="quick_note_label">ملاحظة سريعة (اختياري)</string>
     <string name="quick_note_placeholder">أضف تفاصيل، أهداف أو تذكيرات...</string>
 
     <!-- Node Detail Dialog -->
@@ -123,4 +137,218 @@
     <string name="share_outline">مشاركة المخطط</string>
     <string name="outline_copied_toast">تم نسخ المخطط بصيغة Markdown إلى الحافظة!</string>
     <string name="share_mind_map_chooser">مشاركة الخريطة الذهنية</string>
+
+    <!-- Drag & Drop Actions -->
+    <string name="drag_hold_pocket">إمساك في الجيب</string>
+    <string name="drag_hold_pocket_ar">إمساك في الجيب</string>
+    <string name="drag_edit">تعديل</string>
+    <string name="drag_edit_ar">تعديل</string>
+    <string name="drag_delete">حذف</string>
+    <string name="drag_delete_ar">حذف</string>
+    <string name="drag_reorder_hint">اسحب على المدار لإعادة الترتيب • أو أفلت بالأسفل للإجراءات</string>
+
+    <!-- Node Image Feature & System Modes -->
+    <string name="tab_image">الصورة</string>
+    <string name="node_system_type">نوع العقدة</string>
+    <string name="node_type_idea">عقدة فكرة</string>
+    <string name="node_type_image">عقدة صورة</string>
+    <string name="node_type_idea_ar">فكرة</string>
+    <string name="node_type_image_ar">صورة</string>
+    <string name="set_as_default_node_color">تثبيت كلون افتراضي للعُقد الجديدة</string>
+    <string name="set_as_default_node_color_desc">سيتم إنشاء جميع العُقد القادمة بهذا اللون تلقائياً</string>
+    <string name="default_color_badge">اللون الافتراضي</string>
+    <string name="node_type_idea_desc">فكرة تقليدية مع ألوان ورموز وملاحظات وقائمة مهام</string>
+    <string name="node_type_image_desc">كوكب صوري بالكامل تظهر فيه الصورة كجسم كروي مرئي</string>
+    <string name="node_image_title">صورة العقدة / الكوكب</string>
+    <string name="node_image_subtitle">استخدام صورة كجسم كروي مرئي للكوكب</string>
+    <string name="choose_photo">اختيار صورة</string>
+    <string name="change_photo">تغيير الصورة</string>
+    <string name="remove_photo">إزالة الصورة</string>
+    <string name="node_has_image">كوكب صوري مفعّل</string>
+    <string name="node_has_image_desc">ستظهر العقدة ككوكب كروي صوري نابض بالحياة</string>
+    <string name="view_image_fullscreen">عرض الصورة بالحجم الكامل</string>
+    <string name="dive_into_orbits">التعمق في المدارات الفرعية</string>
+    <string name="dive_into_orbits_ar">التعمق في المدارات</string>
+    <string name="image_viewer_title">كوكب صوري</string>
+    <string name="image_viewer_hint">اضغط على الصورة للتكبير والتصغير • اضغط على التعمق لاستكشاف الأفكار الفرعية</string>
+    <string name="action_view_photo">عرض الصورة</string>
+    <string name="action_view_photo_ar">عرض الصورة</string>
+
+    <!-- Export & Backup System -->
+    <string name="action_export">تصدير</string>
+    <string name="action_export_ar">تصدير</string>
+    <string name="action_import">استيراد</string>
+    <string name="action_backup_restore">النسخ الاحتياطي والاستيراد</string>
+    <string name="export_dialog_title">تصدير الخريطة الذهنية</string>
+    <string name="export_dialog_subtitle">حفظ أو مشاركة خريطتك ومداراتها مع أفكارك</string>
+    <string name="export_scope_title">نطاق التصدير</string>
+    <string name="export_scope_entire_map">الخريطة الذهنية بالكامل</string>
+    <string name="export_scope_entire_map_desc">جميع المدارات والكواكب والأفكار الفرعية في هذا الكون</string>
+    <string name="export_scope_current_branch">العقدة الحالية ومداراتها فقط</string>
+    <string name="export_scope_current_branch_desc">فقط العقدة النشطة (\'%1$s\') ومداراتها الفرعية التابعة</string>
+    <string name="format_orbitmind_json">ملف خريطة مدار (.madar)</string>
+    <string name="format_orbitmind_json_desc">نسخة كاملة مطابقة تشمل الكواكب، المهام، الملاحظات، الروابط، والصور المضمنة بدقة 100%</string>
+    <string name="format_image_with_bg">صورة مع خلفية (.png)</string>
+    <string name="format_image_with_bg_desc">رسم بياني مداري عالي الدقة مع خلفية أنيقة متناسقة</string>
+    <string name="format_image_transparent">صورة بدون خلفية شفافة (.png)</string>
+    <string name="format_image_transparent_desc">مخطط مداري شفاف مناسب للمستندات والعروض التقديمية</string>
+    <string name="format_pdf_document">مستند PDF مع الفهرس (.pdf)</string>
+    <string name="format_pdf_document_desc">مستند PDF منظم يضم المخطط المرئي مع الملاحظات والفهرس الشجري</string>
+    <string name="format_markdown">مخطط نصي شجري Markdown (.md)</string>
+    <string name="format_markdown_desc">مخطط نصي منظم بصيغة ماركداون متوافق مع تطبيقات الملاحظات والمستندات</string>
+    <string name="format_plain_text">نص بسيط (.txt)</string>
+    <string name="format_plain_text_desc">نص منظم بنقاط نقطية دون أي وسوم برمجية</string>
+    <string name="action_share_file">مشاركة كملف</string>
+    <string name="action_save_to_device">حفظ في الهاتف</string>
+    <string name="action_copy_content">نسخ إلى الحافظة</string>
+    <string name="action_share_text">مشاركة كنص</string>
+    <string name="exporting_progress">جارٍ تجهيز حزمة التصدير والصور...</string>
+
+    <!-- Import System & Backup Center -->
+    <string name="backup_center_title">مركز النسخ الاحتياطي والاستيراد</string>
+    <string name="backup_center_subtitle">استيراد الخرائط، استعادة النسخ الاحتياطية وحفظ عالمك الفكري</string>
+    <string name="tab_google_drive">Google Drive</string>
+    <string name="tab_import_file">استيراد ملف</string>
+    <string name="tab_paste_json">لصق كود</string>
+    <string name="tab_full_backup">نسخة احتياطية شاملة</string>
+    <string name="gdrive_title">المزامنة السحابية مع Google Drive</string>
+    <string name="gdrive_desc">حفظ واستعادة خرائطك مباشرة مع حسابك على Google Drive</string>
+    <string name="gdrive_connect_btn">ربط حساب Google Drive</string>
+    <string name="gdrive_disconnect_btn">إلغاء ربط الحساب</string>
+    <string name="gdrive_connected_as">متصل باسم: %1$s</string>
+    <string name="gdrive_backup_all_btn">رفع نسخة احتياطية شاملة إلى Google Drive</string>
+    <string name="gdrive_backup_all_desc">رفع جميع الخرائط والعوالم إلى Google Drive بصيغة .madar</string>
+    <string name="gdrive_cloud_backups_title">النسخ الاحتياطية السحابية على Google Drive</string>
+    <string name="gdrive_refresh_btn">تحديث القائمة</string>
+    <string name="gdrive_no_backups">لا توجد نسخ احتياطية لتطبيق مدار في حسابك حتى الآن</string>
+    <string name="gdrive_download_and_restore">استعادة الخريطة</string>
+    <string name="gdrive_delete_file">حذف الملف</string>
+    <string name="gdrive_uploading_progress">جارٍ رفع النسخة الاحتياطية إلى Google Drive...</string>
+    <string name="gdrive_downloading_progress">جارٍ جلب النسخة الاحتياطية من Google Drive...</string>
+    <string name="gdrive_upload_success">تم الرفع إلى Google Drive بنجاح!</string>
+    <string name="select_backup_file_btn">اختيار ملف خريطة (.madar / .json)</string>
+    <string name="select_backup_file_hint">اختر ملف خريطة مدار تم تصديره مسبقاً من ذاكرة الهاتف أو Google Drive</string>
+    <string name="paste_json_hint">الصق كود JSON الخاص بالخريطة أو النسخة الاحتياطية هنا...</string>
+    <string name="paste_from_clipboard_btn">لصق من الحافظة</string>
+    <string name="preview_valid_map">تم التعرف على خريطة مدار صالحة</string>
+    <string name="preview_valid_full_backup">تم التعرف على نسخة شاملة صالحة (%1$d خريطة)</string>
+    <string name="preview_title_label">عنوان الخريطة:</string>
+    <string name="preview_nodes_count">%1$d كوكب وعقدة</string>
+    <string name="preview_images_count">%1$d صورة مضمنة</string>
+    <string name="import_as_new_copy">استيراد كخريطة جديدة</string>
+    <string name="import_replace_existing">استبدال وتحديث الخريطة/الكون الحالي</string>
+    <string name="import_replace_existing_desc">تحديث العقد والتغييرات في مكانها دون إنشاء نسخ مكررة</string>
+    <string name="import_as_new_copy_desc">إنشاء نسخة إضافية منفصلة</string>
+    <string name="confirm_import_btn">تأكيد واستيراد الخريطة</string>
+    <string name="importing_progress">جارٍ استيراد الخريطة وبناء مداراتها بدقة...</string>
+    <string name="full_backup_title">نسخة احتياطية شاملة للكون</string>
+    <string name="full_backup_desc">تصدير جميع الخرائط الذهنية وأفكارك وملفات الصور في ملف واحد آمن</string>
+    <string name="export_all_maps_btn">تصدير نسخة احتياطية لجميع الخرائط</string>
+    <string name="import_error_invalid">ملف الخريطة غير صالح أو تالف. يرجى التحقق من الملف.</string>
+
+    <!-- Professional Color System & Propagation (مترجم للغة العربية بالكامل) -->
+    <string name="color_system_title">التنسيق اللوني وتوزيع الألوان</string>
+    <string name="color_system_subtitle">تطبيق اللون على العقدة، الأخوة في المدار، أو الفروع بالكامل</string>
+    <string name="color_scope_title">نطاق تطبيق اللون</string>
+    <string name="color_scope_this_node">هذه العقدة فقط</string>
+    <string name="color_scope_direct_children">الأبناء المباشرين</string>
+    <string name="color_scope_all_descendants">جميع الفروع التابعة</string>
+    <string name="color_scope_siblings">الأخوة (نفس المدار)</string>
+    <string name="color_scope_entire_branch">الفرع بالكامل (العقدة + الأبناء)</string>
+    <string name="color_scope_node_siblings">العقدة مع أخوتها في المدار</string>
+    <string name="color_scope_harmonic_gradient">تدرج نغمي للمدارات</string>
+    <string name="color_scope_set_as_primary">تعيين كاللون الأساسي للخريطة</string>
+
+    <string name="palette_category_core">الألوان الأساسية</string>
+    <string name="palette_category_neon">نيون فضائي</string>
+    <string name="palette_category_pastel">باستيل هادئ</string>
+    <string name="palette_category_business">أعمال وإنتاجية</string>
+    <string name="palette_category_earth">طبيعة دافئة</string>
+    <string name="palette_category_cyber">تقنية حيوية</string>
+
+    <string name="apply_color_to_children_btn">تطبيق على الأبناء</string>
+    <string name="apply_color_to_siblings_btn">تطبيق على الأخوة</string>
+    <string name="apply_color_to_branch_btn">تطبيق على الفرع</string>
+    <string name="apply_harmonic_gradient_btn">تدرج نغمي للمدارات</string>
+    <string name="set_as_primary_color_btn">تعيين كاللون الأساسي للخريطة ⭐</string>
+    <string name="set_as_primary_color_short">جعله اللون الأساسي</string>
+    <string name="set_as_primary_color_desc">تعيين هذا اللون كنغمة رئيسية لنواة الخريطة والمدار المركزي</string>
+    <string name="primary_color_set_toast">تم تعيين اللون كلون أساسي للخريطة الذهنية بنجاح!</string>
+    <string name="color_applied_toast">تم تطبيق اللون بنجاح!</string>
+    <string name="custom_hex_label">كود اللون (Hex)</string>
+    <string name="custom_hex_placeholder">4F5B92</string>
+    <string name="custom_color_tab">لون مخصص (Hex)</string>
+    <string name="swatches_tab">لوحات الألوان</string>
+    <string name="harmonic_shades_title">التدرجات النغمية المتناسقة</string>
+    <string name="quick_colorize_title">تلوين فوري</string>
+    <string name="quick_colorize_subtitle">خيارات وتطبيق الألوان السريع على المدارات</string>
+
+    <!-- Google Sign-In & Profile strings -->
+    <string name="action_sign_in_google">تسجيل الدخول بحساب Google</string>
+    <string name="account_profile_cd">حساب Google</string>
+    <string name="account_dialog_title">حساب Google والمزامنة السحابية</string>
+    <string name="account_signed_in">تم تسجيل الدخول</string>
+    <string name="account_signed_out">غير مسجل الدخول</string>
+    <string name="account_sign_out">تسجيل الخروج</string>
+
+    <!-- Home Dashboard & Discovery Experience -->
+    <string name="app_tagline">مساحتك المدارية للتفكير البصري</string>
+    <string name="greeting_morning">صباح الإبداع والتركيز</string>
+    <string name="greeting_afternoon">مساؤك فكر متألق</string>
+    <string name="greeting_evening">مساء الأفكار النيرة</string>
+    <string name="greeting_night">ليلة هادئة وملهمة</string>
+    <string name="stats_universes_count">%1$d عوالم</string>
+    <string name="stats_nodes_count">%1$d فكرة وكوكب</string>
+    <string name="stats_cloud_synced">Drive متزامن</string>
+    <string name="stats_cloud_not_synced">نسخ سحابي</string>
+    <string name="section_starter_templates">قوالب مدارية ملهمة</string>
+    <string name="template_goals_title">الأهداف والإنجازات</string>
+    <string name="template_goals_sub">مسارات النمو والإنتاجية</string>
+    <string name="template_launch_title">إطلاق مشروع</string>
+    <string name="template_launch_sub">خطة الإطلاق والجمهور</string>
+    <string name="template_brainstorm_title">عصف ذهني حر</string>
+    <string name="template_brainstorm_sub">أفكار ثورية ومراجع</string>
+    <string name="template_study_title">ملخص دراسي</string>
+    <string name="template_study_sub">مفاهيم ومراجعة شاملة</string>
+    <string name="section_my_universes">عوالمي الفكرية</string>
+    <string name="view_mode_grid">عرض كوكبي شبكي</string>
+    <string name="view_mode_list">عرض قائمة</string>
+    <string name="filter_all">الكل</string>
+    <string name="filter_recent">الأحدث</string>
+    <string name="node_count_badge">%1$d فكرة</string>
+    <string name="create_first_map_action">ابدأ بإنشاء أول خريطة ذهنية</string>
+    <string name="create_new_universe_label">عالم جديد</string>
+    <string name="clear_search_cd">مسح البحث</string>
+
+    <!-- Universe Merging & Circular Cosmos -->
+    <string name="action_merge_map">دمج في عالم آخر</string>
+    <string name="merge_map_dialog_title">دمج العوالم</string>
+    <string name="merge_map_dialog_desc">اختر العالم الهدف لدمج «%1$s» داخله كفرع مداري:</string>
+    <string name="merge_confirm_title">تأكيد دمج العوالم</string>
+    <string name="merge_confirm_msg">هل تريد دمج عالم «%1$s» بالكامل داخل عالم «%2$s» كفرع مداري؟</string>
+    <string name="merge_success_toast">تم دمج العالم بنجاح داخل «%1$s»!</string>
+    <string name="drag_to_merge_hint">اسحب وأفلت فوق أي عقدة لدمجها</string>
+    <string name="filter_universes">العوالم الرئيسية</string>
+    <string name="filter_shortcuts">الاختصارات السريعة</string>
+    <string name="drop_to_merge_badge">إفلات للدمج 🪐</string>
+    <string name="action_pin_to_top">تثبيت في البداية 📌</string>
+    <string name="action_unpin">إلغاء التثبيت</string>
+    <string name="pinned_badge_label">مثبت 📌</string>
+    <string name="tab_progress">التقدم</string>
+    <string name="progress_title">نظام التقدم</string>
+    <string name="progress_desc">تفعيل حلقة مقسمة إلى 10 أجزاء حول العقدة لمتابعة نسبة الإنجاز</string>
+    <string name="enable_progress_switch">تفعيل شريط التقدم الدائري</string>
+    <string name="progress_level_label">مستوى التقدم:</string>
+    <string name="progress_completed_badge">مكتمل 100% ✨</string>
+    <string name="progress_parts_format">%1$d / 10 قطع</string>
+
+    <!-- Smart Cloud Auto-Sync -->
+    <string name="auto_sync_title">المزامنة السحابية الذكية</string>
+    <string name="auto_sync_desc">حفظ ورفع التعديلات تلقائياً إلى Google Drive في الخلفية بعد التعديل</string>
+    <string name="auto_sync_status_idle">متزامن سحابياً</string>
+    <string name="auto_sync_status_syncing">جارٍ الرفع والمزامنة السحابية…</string>
+    <string name="auto_sync_status_success">آخر مزامنة: %1$s</string>
+    <string name="auto_sync_status_error">تعذر المزامنة: %1$s</string>
+    <string name="auto_sync_sync_now">مزامنة فورية الآن</string>
+    <string name="auto_sync_enable_switch">تفعيل المزامنة التلقائية</string>
 </resources>

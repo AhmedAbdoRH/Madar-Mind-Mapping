@@ -97,6 +97,25 @@ val DarkAppColors = AppColors(
     canvasTrack = DarkBorder.copy(alpha = 0.9f)
 )
 
+val ZenBlackAppColors = AppColors(
+    isDark = true,
+    background = Color.Black,
+    surface = Color(0xFF0D0D11),
+    surfaceVariant = Color(0xFF16161D),
+    surfaceElevated = Color(0xFF1E1E26),
+    border = Color(0xFF2A2B36),
+    borderSubtle = Color(0xFF1F202B),
+    primary = DarkPrimary,
+    primaryLight = DarkPrimaryLight,
+    primaryContainer = DarkPrimaryContainer,
+    onPrimaryContainer = DarkOnPrimaryContainer,
+    textPrimary = Color(0xFFF3F4F6),
+    textSecondary = Color(0xFFA1A1AA),
+    textTertiary = Color(0xFF71717A),
+    canvasDot = DarkPrimary.copy(alpha = 0.18f),
+    canvasTrack = Color(0xFF2A2B36)
+)
+
 val LocalAppColors = staticCompositionLocalOf { LightAppColors }
 
 object AppTheme {

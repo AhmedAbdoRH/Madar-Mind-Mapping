@@ -12,7 +12,7 @@ import com.example.data.model.MindNodeEntity
         MindMapEntity::class,
         MindNodeEntity::class
     ],
-    version = 2,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

@@ -16,9 +16,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DriveFileMove
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -35,12 +37,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.data.model.MindNodeEntity
+import com.example.R
 import com.example.ui.theme.SleekBorderSubtle
 import com.example.ui.theme.SleekPrimary
 import com.example.ui.theme.SleekSurface
@@ -55,30 +60,58 @@ import com.example.ui.util.OrbitIcons
 fun PocketActionSheet(
     pocketNode: MindNodeEntity,
     currentCentralNode: MindNodeEntity,
+    allNodes: List<MindNodeEntity> = emptyList(),
+    isDirectDrop: Boolean = false,
     onMove: () -> Unit,
     onClone: () -> Unit,
     onSyncTwin: () -> Unit,
-    onClearPocket: () -> Unit,
+    onClearPocket: (() -> Unit)? = null,
     onDismiss: () -> Unit
 ) {
-    val nodeColor = remember(pocketNode.colorHex) {
+    val sourceColor = remember(pocketNode.colorHex) {
         OrbitColors.parseColor(pocketNode.colorHex)
     }
-    val textColor = remember(nodeColor) {
-        OrbitColors.getContrastingTextColor(nodeColor)
+    val sourceTextColor = remember(sourceColor) {
+        OrbitColors.getContrastingTextColor(sourceColor)
     }
-    val icon = remember(pocketNode.iconName) {
+    val sourceIcon = remember(pocketNode.iconName) {
         OrbitIcons.getIcon(pocketNode.iconName)
     }
 
-    val isSameNodeOrRoot = pocketNode.id == currentCentralNode.id || pocketNode.parentId == null
+    val targetColor = remember(currentCentralNode.colorHex) {
+        OrbitColors.parseColor(currentCentralNode.colorHex)
+    }
+    val targetTextColor = remember(targetColor) {
+        OrbitColors.getContrastingTextColor(targetColor)
+    }
+    val targetIcon = remember(currentCentralNode.iconName) {
+        OrbitIcons.getIcon(currentCentralNode.iconName)
+    }
+
+    // Check if target node is a descendant of the source node (to prevent cyclic graph parent loop)
+    val isTargetDescendantOfSource = remember(pocketNode.id, currentCentralNode.id, allNodes) {
+        if (pocketNode.id == currentCentralNode.id) return@remember true
+        var curr = allNodes.firstOrNull { it.id == currentCentralNode.id }
+        var isDescendant = false
+        while (curr?.parentId != null) {
+            if (curr.parentId == pocketNode.id) {
+                isDescendant = true
+                break
+            }
+            curr = allNodes.firstOrNull { it.id == curr?.parentId }
+        }
+        isDescendant
+    }
+
+    val isAlreadyChild = pocketNode.parentId == currentCentralNode.id
+    val isMoveAllowed = !isTargetDescendantOfSource && !isAlreadyChild && pocketNode.parentId != null
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(24.dp),
             color = SleekSurface,
             border = androidx.compose.foundation.BorderStroke(1.dp, SleekBorderSubtle),
-            shadowElevation = 12.dp,
+            shadowElevation = 14.dp,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 12.dp)
@@ -97,19 +130,19 @@ fun PocketActionSheet(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "🪐",
-                            fontSize = 20.sp,
+                            text = if (isDirectDrop) "🪐" else "📥",
+                            fontSize = 22.sp,
                             modifier = Modifier.padding(end = 8.dp)
                         )
                         Column {
                             Text(
-                                text = "حلقة الجيب المداري",
+                                text = if (isDirectDrop) "إسقاط داخل مدار العقدة" else "حلقة الجيب المداري",
                                 color = TextPrimary,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "العقدة المحتجزة جاهزة للإدراج",
+                                text = if (isDirectDrop) "اختر عملية الإسقاط (نقل أو نسخ أو مزامنة)" else "العقدة جاهزة للإدراج في هذا المدار",
                                 color = TextSecondary,
                                 fontSize = 11.sp
                             )
@@ -131,7 +164,7 @@ fun PocketActionSheet(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Node Card Preview
+                // Source Node ➔ Target Node Visual Pathway
                 Surface(
                     shape = RoundedCornerShape(16.dp),
                     color = SleekSurfaceVariant,
@@ -140,74 +173,147 @@ fun PocketActionSheet(
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(12.dp)
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(nodeColor)
-                                .border(1.5.dp, Color.White, CircleShape),
-                            contentAlignment = Alignment.Center
+                        // Source Node Capsule
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
                         ) {
-                            if (icon != null) {
-                                Icon(
-                                    imageVector = icon,
-                                    contentDescription = null,
-                                    tint = textColor,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            } else {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(CircleShape)
+                                    .background(sourceColor)
+                                    .border(1.5.dp, Color.White, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (sourceIcon != null) {
+                                    Icon(
+                                        imageVector = sourceIcon,
+                                        contentDescription = null,
+                                        tint = sourceTextColor,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                } else {
+                                    Text(
+                                        text = pocketNode.title.take(2).uppercase().ifBlank { "•" },
+                                        color = sourceTextColor,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Column {
                                 Text(
-                                    text = pocketNode.title.take(2).uppercase().ifBlank { "•" },
-                                    color = textColor,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold
+                                    text = "العقدة المسحوبة",
+                                    color = TextSecondary,
+                                    fontSize = 9.5.sp
+                                )
+                                Text(
+                                    text = pocketNode.title,
+                                    color = TextPrimary,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
                         }
 
-                        Spacer(modifier = Modifier.width(12.dp))
+                        // Arrow
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = "To target",
+                            tint = SleekPrimary,
+                            modifier = Modifier
+                                .padding(horizontal = 6.dp)
+                                .size(20.dp)
+                        )
 
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = pocketNode.title,
-                                color = TextPrimary,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Text(
-                                text = "الهدف: مدار [${currentCentralNode.title}]",
-                                color = SleekPrimary,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                        // Target Node Capsule
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(
+                                    text = "المدار المستقبل",
+                                    color = TextSecondary,
+                                    fontSize = 9.5.sp
+                                )
+                                Text(
+                                    text = currentCentralNode.title,
+                                    color = TextPrimary,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(CircleShape)
+                                    .background(targetColor)
+                                    .border(1.5.dp, Color.White, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (targetIcon != null) {
+                                    Icon(
+                                        imageVector = targetIcon,
+                                        contentDescription = null,
+                                        tint = targetTextColor,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                } else {
+                                    Text(
+                                        text = currentCentralNode.title.take(2).uppercase().ifBlank { "•" },
+                                        color = targetTextColor,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
                 Text(
-                    text = "اختر الإجراء المطلوب في هذا المدار:",
+                    text = "اختر الإجراء المطلوب لتنفيذه في مدار [${currentCentralNode.title}]:",
                     color = TextSecondary,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold
                 )
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // 1. Live Sync Twin Option (المزامنة الحية / النقل الآني المتزامن)
+                // 1. Move Option (نقل المدار)
                 ActionTile(
-                    icon = Icons.Default.Sync,
-                    iconTint = Color(0xFF06B6D4),
-                    title = "مزامنة حية (Live Sync Twin)",
-                    subtitle = "تكرار العقدة كمرآة متزامنة حية — أي تعديل في أي منهما يتزامن تلقائياً!",
-                    badge = "تزامن فوري",
-                    badgeColor = Color(0xFF06B6D4),
-                    onClick = onSyncTwin
+                    icon = Icons.Default.DriveFileMove,
+                    iconTint = if (isMoveAllowed) Color(0xFF8B5CF6) else TextTertiary,
+                    title = "نقل المدار إلى هنا (Move)",
+                    subtitle = if (isMoveAllowed) {
+                        "نقل العقدة وفروعها بالكامل من مكانها القديم لتصبح جزءاً من مدار [${currentCentralNode.title}]"
+                    } else if (isAlreadyChild) {
+                        "العقدة موجودة بالفعل في هذا المدار"
+                    } else {
+                        "لا يمكن نقل عقدة إلى أحد مداراتها الفرعية لتجنب الحلقات"
+                    },
+                    badge = if (isMoveAllowed) "نقل مباشر" else "غير متاح",
+                    badgeColor = if (isMoveAllowed) Color(0xFF8B5CF6) else TextTertiary,
+                    enabled = isMoveAllowed,
+                    onClick = onMove
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -217,41 +323,45 @@ fun PocketActionSheet(
                     icon = Icons.Default.ContentCopy,
                     iconTint = Color(0xFF10B981),
                     title = "نسخ مستقل (Clone Copy)",
-                    subtitle = "إنشاء نسخة جديدة ومستقلة بالكامل مع جميع مداراتها الفرعية",
+                    subtitle = "إنشاء نسخة جديدة ومستقلة بالكامل مع كافة الفروع والتفاصيل داخل [${currentCentralNode.title}]",
                     badge = "نسخة منفصلة",
                     badgeColor = Color(0xFF10B981),
+                    enabled = true,
                     onClick = onClone
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // 3. Move Option (نقل المدار)
-                if (!isSameNodeOrRoot) {
-                    ActionTile(
-                        icon = Icons.Default.DriveFileMove,
-                        iconTint = Color(0xFF8B5CF6),
-                        title = "نقل المدار إلى هنا (Move Here)",
-                        subtitle = "نقل العقدة ومداراتها بالكامل من مكانها القديم إلى هذا المدار",
-                        badge = "نقل مباشر",
-                        badgeColor = Color(0xFF8B5CF6),
-                        onClick = onMove
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
+                // 3. Live Sync Twin Option (المزامنة الحية / النقل الآني المتزامن)
+                ActionTile(
+                    icon = Icons.Default.Sync,
+                    iconTint = Color(0xFF06B6D4),
+                    title = "مزامنة توأمية حية (Live Sync Twin)",
+                    subtitle = "إنشاء توأم متزامن — أي تعديل على المهام أو الملاحظات أو الفروع يتزامن تلقائياً بين المدارين!",
+                    badge = "تزامن فوري",
+                    badgeColor = Color(0xFF06B6D4),
+                    enabled = true,
+                    onClick = onSyncTwin
+                )
 
-                HorizontalDivider(color = SleekBorderSubtle, modifier = Modifier.padding(vertical = 6.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+                HorizontalDivider(color = SleekBorderSubtle, modifier = Modifier.padding(vertical = 4.dp))
 
-                // Footer: Clear Pocket or Cancel
+                // Footer
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    TextButton(
-                        onClick = onClearPocket,
-                        colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFEF4444))
-                    ) {
-                        Text("إفراغ الحلقة", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    if (onClearPocket != null) {
+                        TextButton(
+                            onClick = onClearPocket,
+                            colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFEF4444))
+                        ) {
+                            Text("تفريغ الجيب", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.width(1.dp))
                     }
 
                     TextButton(onClick = onDismiss) {
@@ -271,16 +381,17 @@ private fun ActionTile(
     subtitle: String,
     badge: String,
     badgeColor: Color,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     Surface(
         shape = RoundedCornerShape(14.dp),
-        color = SleekSurfaceVariant.copy(alpha = 0.7f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, SleekBorderSubtle),
+        color = if (enabled) SleekSurfaceVariant.copy(alpha = 0.7f) else SleekSurfaceVariant.copy(alpha = 0.35f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, if (enabled) SleekBorderSubtle else SleekBorderSubtle.copy(alpha = 0.4f)),
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick)
+            .clickable(enabled = enabled, onClick = onClick)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -290,7 +401,7 @@ private fun ActionTile(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(iconTint.copy(alpha = 0.15f)),
+                    .background(iconTint.copy(alpha = if (enabled) 0.15f else 0.08f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -311,13 +422,13 @@ private fun ActionTile(
                 ) {
                     Text(
                         text = title,
-                        color = TextPrimary,
+                        color = if (enabled) TextPrimary else TextTertiary,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = badgeColor.copy(alpha = 0.18f),
+                        color = badgeColor.copy(alpha = if (enabled) 0.18f else 0.08f),
                         modifier = Modifier.padding(start = 4.dp)
                     ) {
                         Text(
@@ -332,7 +443,7 @@ private fun ActionTile(
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = subtitle,
-                    color = TextSecondary,
+                    color = if (enabled) TextSecondary else TextTertiary,
                     fontSize = 10.5.sp,
                     lineHeight = 13.sp
                 )

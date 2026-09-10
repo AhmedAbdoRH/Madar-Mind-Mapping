@@ -1,8 +1,10 @@
 package com.example.ui.screens
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -25,6 +27,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -40,13 +43,23 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.GeneratingTokens
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SelfImprovement
+import androidx.compose.material.icons.filled.Shortcut
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,28 +68,44 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.example.R
 import com.example.data.model.MindMapEntity
 import com.example.data.model.MindNodeEntity
 import com.example.ui.canvas.OrbitalMindCanvas
 import com.example.ui.dialogs.AddNodeDialog
+import com.example.ui.dialogs.ExportMapDialog
+import com.example.ui.dialogs.ImageViewerDialog
 import com.example.ui.dialogs.NodeDetailDialog
 import com.example.ui.dialogs.NodeQuickActionMenu
 import com.example.ui.dialogs.PocketActionSheet
@@ -92,8 +121,10 @@ import com.example.ui.theme.SleekSurfaceVariant
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
 import com.example.ui.theme.TextTertiary
+import com.example.ui.util.ColorApplyScope
 import com.example.ui.util.OrbitColors
 import com.example.ui.util.OrbitIcons
+import com.example.ui.util.ShortcutHelper
 import com.example.ui.viewmodel.MindMapViewModel
 
 @Composable
@@ -108,16 +139,34 @@ fun MindMapScreen(
     val orbitRotationAngle by viewModel.orbitRotationAngle.collectAsStateWithLifecycle()
 
     val selectedNodeForEdit by viewModel.selectedNodeForEdit.collectAsStateWithLifecycle()
+    val selectedNodeForImageViewer by viewModel.selectedNodeForImageViewer.collectAsStateWithLifecycle()
     val isAddNodeOpen by viewModel.isAddNodeOpen.collectAsStateWithLifecycle()
     val isOutlineOpen by viewModel.isOutlineOpen.collectAsStateWithLifecycle()
 
     val isSearchActive by viewModel.isSearchActive.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val progressSortDescending by viewModel.progressSortDescending.collectAsStateWithLifecycle()
+    val impactSortDescending by viewModel.impactSortDescending.collectAsStateWithLifecycle()
+
+    // Export Dialog State
+    val isExportDialogOpen by viewModel.isExportDialogOpen.collectAsStateWithLifecycle()
+    val exportTargetMap by viewModel.exportTargetMap.collectAsStateWithLifecycle()
+    val exportTargetNodes by viewModel.exportTargetNodes.collectAsStateWithLifecycle()
 
     // Pocket & Quick Actions
     val pocketNode by viewModel.pocketNode.collectAsStateWithLifecycle()
     val isPocketActionDialogOpen by viewModel.isPocketActionDialogOpen.collectAsStateWithLifecycle()
+    val dropTargetAction by viewModel.dropTargetAction.collectAsStateWithLifecycle()
     val nodeForQuickActions by viewModel.nodeForQuickActions.collectAsStateWithLifecycle()
+    val userFeedbackMessage by viewModel.userFeedbackMessage.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+    LaunchedEffect(userFeedbackMessage) {
+        userFeedbackMessage?.let { msg ->
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            viewModel.clearFeedbackMessage()
+        }
+    }
 
     val currentMap = remember(activeMapId, allMaps) {
         allMaps.firstOrNull { it.id == activeMapId }
@@ -131,6 +180,12 @@ fun MindMapScreen(
     val orbitingChildren = remember(centralNode, allNodes) {
         if (centralNode == null) emptyList()
         else allNodes.filter { it.parentId == centralNode.id }.sortedBy { it.orderIndex }
+    }
+
+    val parentNode = remember(centralNode, allNodes) {
+        if (centralNode?.parentId != null) {
+            allNodes.firstOrNull { it.id == centralNode.parentId }
+        } else null
     }
 
     // Breadcrumb path from Root down to centralNode
@@ -153,10 +208,27 @@ fun MindMapScreen(
         }
     }
 
+    var zoomOutTrigger by remember { mutableIntStateOf(0) }
+    var nodePendingDeletion by remember { mutableStateOf<MindNodeEntity?>(null) }
+    var nodeForShortcutChoice by remember { mutableStateOf<MindNodeEntity?>(null) }
+    var isSortMenuExpanded by remember { mutableStateOf(false) }
+
+    fun handleNavigateBack() {
+        if (centralNode?.parentId != null) {
+            zoomOutTrigger++
+        } else {
+            viewModel.navigateUpLevel()
+        }
+    }
+
     // Hardware/System Back Button Navigation
     BackHandler {
-        if (isSearchActive) {
+        if (nodePendingDeletion != null) {
+            nodePendingDeletion = null
+        } else if (isSearchActive) {
             viewModel.setSearchActive(false)
+        } else if (selectedNodeForImageViewer != null) {
+            viewModel.closeImageViewer()
         } else if (isPocketActionDialogOpen) {
             viewModel.closePocketActionDialog()
         } else if (nodeForQuickActions != null) {
@@ -168,7 +240,7 @@ fun MindMapScreen(
         } else if (selectedNodeForEdit != null) {
             viewModel.closeEditNodeDialog()
         } else {
-            viewModel.navigateUpLevel()
+            handleNavigateBack()
         }
     }
 
@@ -198,10 +270,24 @@ fun MindMapScreen(
                     orbitingNodes = orbitingChildren,
                     allNodesInMap = allNodes,
                     currentRotationAngle = orbitRotationAngle,
+                    pocketNode = pocketNode,
+                    zoomOutTrigger = zoomOutTrigger,
                     onRotateBy = { delta -> viewModel.rotateOrbitBy(delta) },
                     onDiveIntoNode = { nodeId -> viewModel.diveIntoNode(nodeId) },
                     onCenterNodeClick = { node -> viewModel.openEditNodeDialog(node) },
                     onOrbitNodeLongClick = { node -> viewModel.openQuickActions(node) },
+                    onReorderNodes = { orderedIds -> viewModel.reorderSiblingNodes(orderedIds) },
+                    onPutInPocket = { node -> viewModel.putNodeInPocket(node) },
+                    onDropHeldNode = { _ -> viewModel.openPocketActionDialog() },
+                    onDropNodeOntoTarget = { source, target ->
+                        viewModel.openDropActionForNodes(source, target, isDirectDrop = true)
+                    },
+                    onClearPocket = { viewModel.clearPocket() },
+                    onOpenPocketDialog = { viewModel.openPocketActionDialog() },
+                    onEditNode = { node -> viewModel.openEditNodeDialog(node) },
+                    onDeleteNode = { node -> nodePendingDeletion = node },
+                    onImageNodeClick = { node -> viewModel.openImageViewer(node) },
+                    onNavigateToOriginalNode = { originalId -> viewModel.navigateToOriginalNode(originalId) },
                     onAddChildClick = {
                         if (pocketNode != null) {
                             viewModel.openPocketActionDialog()
@@ -211,329 +297,298 @@ fun MindMapScreen(
                     }
                 )
 
-                // Top Navigation & Breadcrumbs Bar
-                Column(
+                // Floating Back Button on Top Start (Left)
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = SleekSurface.copy(alpha = 0.92f),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, SleekBorderSubtle),
+                    shadowElevation = 4.dp,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.TopCenter)
-                        .padding(horizontal = 14.dp, vertical = 10.dp)
+                        .align(Alignment.TopStart)
+                        .padding(start = 14.dp, top = 14.dp)
                 ) {
-                    Surface(
-                        shape = RoundedCornerShape(20.dp),
-                        color = SleekSurface.copy(alpha = 0.95f),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, SleekBorderSubtle),
-                        shadowElevation = 4.dp,
-                        modifier = Modifier.fillMaxWidth()
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clickable { handleNavigateBack() }
+                            .padding(horizontal = 10.dp, vertical = 6.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.action_back),
+                            tint = TextPrimary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        val backTitle = parentNode?.title
+                        if (!backTitle.isNullOrBlank()) {
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = backTitle,
+                                color = TextPrimary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.widthIn(max = 140.dp)
+                            )
+                        }
+                    }
+                }
+
+                // Vertical Floating Action Strip on Top End (Right): Search, Outline/Index, Reset Orbit, Sort By, Export (Icons only, no text)
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = SleekSurface.copy(alpha = 0.94f),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, SleekBorderSubtle),
+                    shadowElevation = 6.dp,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(end = 14.dp, top = 14.dp)
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 2.dp)
+                    ) {
+                        // 1. Search Button
+                        IconButton(
+                            onClick = { viewModel.setSearchActive(!isSearchActive) },
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp, vertical = 6.dp)
+                                .size(38.dp)
+                                .testTag("toggle_search_button")
                         ) {
-                            // Back Button
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = stringResource(R.string.action_search),
+                                tint = if (isSearchActive) SleekPrimary else TextSecondary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+
+                        // 2. Outline / Tree Index Button (الفهرس)
+                        IconButton(
+                            onClick = { viewModel.setOutlineOpen(true) },
+                            modifier = Modifier
+                                .size(38.dp)
+                                .testTag("toggle_outline_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FormatListBulleted,
+                                contentDescription = stringResource(R.string.action_outline),
+                                tint = TextSecondary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+
+                        // 3. Reset Orbit Rotation Button (إعادة الضبط)
+                        IconButton(
+                            onClick = { viewModel.resetOrbitRotation() },
+                            modifier = Modifier
+                                .size(38.dp)
+                                .testTag("reset_orbit_rotation_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "إعادة ضبط المدار",
+                                tint = TextSecondary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+
+                        // 4. Sort By Button (الترتيب حسب)
+                        Box {
                             IconButton(
-                                onClick = { viewModel.navigateUpLevel() },
-                                modifier = Modifier.size(36.dp).testTag("navigate_up_button")
+                                onClick = { isSortMenuExpanded = true },
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .testTag("sort_nodes_button")
                             ) {
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = stringResource(R.string.action_back),
-                                    tint = TextPrimary,
+                                    imageVector = Icons.Default.Sort,
+                                    contentDescription = "ترتيب العقد",
+                                    tint = if (isSortMenuExpanded) SleekPrimary else TextSecondary,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
 
-                            // Breadcrumb Path (Scrollable)
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .horizontalScroll(rememberScrollState())
-                                    .padding(horizontal = 4.dp)
+                            DropdownMenu(
+                                expanded = isSortMenuExpanded,
+                                onDismissRequest = { isSortMenuExpanded = false },
+                                modifier = Modifier.background(SleekSurfaceElevated)
                             ) {
-                                breadcrumbs.forEachIndexed { index, node ->
-                                    val isCurrent = index == breadcrumbs.lastIndex
-                                    Text(
-                                        text = node.title,
-                                        color = if (isCurrent) SleekPrimary else TextSecondary,
-                                        fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
-                                        fontSize = 13.sp,
-                                        maxLines = 1,
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(6.dp))
-                                            .clickable { viewModel.diveIntoNode(node.id) }
-                                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                                    )
-
-                                    if (index < breadcrumbs.lastIndex) {
-                                        Text(
-                                            text = "›",
-                                            color = TextTertiary,
-                                            fontSize = 14.sp,
-                                            modifier = Modifier.padding(horizontal = 2.dp)
-                                        )
-                                    }
-                                }
-                            }
-
-                            // Search Action
-                            IconButton(
-                                onClick = { viewModel.setSearchActive(!isSearchActive) },
-                                modifier = Modifier.size(34.dp).testTag("toggle_search_button")
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Search,
-                                    contentDescription = stringResource(R.string.action_search),
-                                    tint = if (isSearchActive) SleekPrimary else TextSecondary,
-                                    modifier = Modifier.size(19.dp)
-                                )
-                            }
-
-                            // Outline Action
-                            IconButton(
-                                onClick = { viewModel.setOutlineOpen(true) },
-                                modifier = Modifier.size(34.dp).testTag("toggle_outline_button")
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.FormatListBulleted,
-                                    contentDescription = stringResource(R.string.action_outline),
-                                    tint = TextSecondary,
-                                    modifier = Modifier.size(19.dp)
-                                )
-                            }
-
-                            // Dark / Light Mode Quick Toggle
-                            IconButton(
-                                onClick = { viewModel.toggleDarkMode() },
-                                modifier = Modifier.size(34.dp).testTag("map_theme_toggle_button")
-                            ) {
-                                Icon(
-                                    imageVector = if (isDark) Icons.Default.DarkMode else Icons.Default.LightMode,
-                                    contentDescription = stringResource(R.string.toggle_dark_mode_cd),
-                                    tint = if (isDark) SleekPrimary else TextSecondary,
-                                    modifier = Modifier.size(19.dp)
-                                )
-                            }
-
-                            // Edit Current Node Action
-                            IconButton(
-                                onClick = { viewModel.openEditNodeDialog(centralNode) },
-                                modifier = Modifier.size(34.dp).testTag("edit_central_node_button")
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = stringResource(R.string.edit_center_cd),
-                                    tint = TextSecondary,
-                                    modifier = Modifier.size(19.dp)
-                                )
-                            }
-                        }
-                    }
-
-                    // Search Overlay dropdown if active
-                    AnimatedVisibility(
-                        visible = isSearchActive,
-                        enter = fadeIn() + slideInVertically(),
-                        exit = fadeOut() + slideOutVertically()
-                    ) {
-                        Surface(
-                            shape = RoundedCornerShape(16.dp),
-                            color = SleekSurface,
-                            border = androidx.compose.foundation.BorderStroke(1.dp, SleekBorderSubtle),
-                            shadowElevation = 8.dp,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp)
-                        ) {
-                            Column(modifier = Modifier.padding(12.dp)) {
-                                OutlinedTextField(
-                                    value = searchQuery,
-                                    onValueChange = { viewModel.setSearchQuery(it) },
-                                    placeholder = { Text(stringResource(R.string.search_idea_placeholder)) },
-                                    singleLine = true,
-                                    trailingIcon = {
-                                        if (searchQuery.isNotBlank()) {
-                                            IconButton(onClick = { viewModel.setSearchQuery("") }) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Close,
-                                                    contentDescription = stringResource(R.string.action_clear),
-                                                    tint = TextSecondary,
-                                                    modifier = Modifier.size(16.dp)
-                                                )
-                                            }
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text("📊", fontSize = 14.sp)
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = if (progressSortDescending) "شدة التقييم (من الأعلى للأقل ⬇️)" else "شدة التقييم (من الأقل للأعلى ⬆️)",
+                                                color = TextPrimary,
+                                                fontSize = 12.sp
+                                            )
                                         }
                                     },
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedTextColor = TextPrimary,
-                                        unfocusedTextColor = TextPrimary,
-                                        focusedBorderColor = SleekPrimary,
-                                        unfocusedBorderColor = SleekBorder,
-                                        focusedContainerColor = SleekSurface,
-                                        unfocusedContainerColor = SleekSurfaceVariant
-                                    ),
-                                    shape = RoundedCornerShape(12.dp),
-                                    modifier = Modifier.fillMaxWidth()
+                                    onClick = {
+                                        isSortMenuExpanded = false
+                                        viewModel.toggleSortSiblingsByProgress()
+                                    }
                                 )
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text("⚡", fontSize = 14.sp)
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = if (impactSortDescending) "قوة التأثير (من الأعلى للأقل ⬇️)" else "قوة التأثير (من الأقل للأعلى ⬆️)",
+                                                color = TextPrimary,
+                                                fontSize = 12.sp
+                                            )
+                                        }
+                                    },
+                                    onClick = {
+                                        isSortMenuExpanded = false
+                                        viewModel.toggleSortSiblingsByImpact()
+                                    }
+                                )
+                            }
+                        }
 
-                                if (searchQuery.isNotBlank()) {
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text(
-                                        text = stringResource(R.string.matches_found_count, searchResults.size),
-                                        color = TextTertiary,
-                                        fontSize = 11.sp,
-                                        modifier = Modifier.padding(horizontal = 4.dp)
+                        // 5. Export Button
+                        IconButton(
+                            onClick = { viewModel.openExportDialogForCurrentMap() },
+                            modifier = Modifier
+                                .size(38.dp)
+                                .testTag("export_current_map_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FileDownload,
+                                contentDescription = stringResource(R.string.action_export),
+                                tint = TextSecondary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                }
+
+                // Search Overlay Floating Card (when search is open)
+                AnimatedVisibility(
+                    visible = isSearchActive,
+                    enter = fadeIn() + slideInVertically(),
+                    exit = fadeOut() + slideOutVertically(),
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 66.dp, start = 16.dp, end = 16.dp)
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(18.dp),
+                        color = SleekSurface,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, SleekBorderSubtle),
+                        shadowElevation = 8.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            OutlinedTextField(
+                                value = searchQuery,
+                                onValueChange = { viewModel.setSearchQuery(it) },
+                                placeholder = { Text(stringResource(R.string.search_idea_placeholder), fontSize = 13.sp) },
+                                singleLine = true,
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = null,
+                                        tint = SleekPrimary,
+                                        modifier = Modifier.size(18.dp)
                                     )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    LazyColumn(modifier = Modifier.height(180.dp)) {
-                                        items(searchResults) { matchNode ->
-                                            val matchColor = OrbitColors.parseColor(matchNode.colorHex)
-                                            val textColor = OrbitColors.getContrastingTextColor(matchColor)
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .clickable {
-                                                        viewModel.diveIntoNode(matchNode.id)
-                                                        viewModel.setSearchActive(false)
-                                                    }
-                                                    .padding(vertical = 6.dp, horizontal = 4.dp)
-                                            ) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .size(24.dp)
-                                                        .clip(CircleShape)
-                                                        .background(matchColor)
-                                                        .border(1.dp, Color.White, CircleShape),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    val searchIcon = OrbitIcons.getIcon(matchNode.iconName)
-                                                    if (searchIcon != null) {
-                                                        Icon(
-                                                            imageVector = searchIcon,
-                                                            contentDescription = null,
-                                                            tint = textColor,
-                                                            modifier = Modifier.size(14.dp)
-                                                        )
-                                                    } else {
-                                                        Text(
-                                                            text = matchNode.title.take(1).uppercase().ifBlank { "•" },
-                                                            color = textColor,
-                                                            fontSize = 11.sp,
-                                                            fontWeight = FontWeight.Bold
-                                                        )
-                                                    }
+                                },
+                                trailingIcon = {
+                                    IconButton(onClick = {
+                                        if (searchQuery.isNotBlank()) {
+                                            viewModel.setSearchQuery("")
+                                        } else {
+                                            viewModel.setSearchActive(false)
+                                        }
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = stringResource(R.string.action_clear),
+                                            tint = TextSecondary,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = TextPrimary,
+                                    unfocusedTextColor = TextPrimary,
+                                    focusedBorderColor = SleekPrimary,
+                                    unfocusedBorderColor = SleekBorderSubtle,
+                                    focusedContainerColor = SleekSurface,
+                                    unfocusedContainerColor = SleekSurfaceVariant
+                                ),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            if (searchQuery.isNotBlank()) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = stringResource(R.string.matches_found_count, searchResults.size),
+                                    color = TextTertiary,
+                                    fontSize = 11.sp,
+                                    modifier = Modifier.padding(horizontal = 4.dp)
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                LazyColumn(modifier = Modifier.height(180.dp)) {
+                                    items(searchResults) { matchNode ->
+                                        val matchColor = OrbitColors.parseColor(matchNode.colorHex)
+                                        val textColor = OrbitColors.getContrastingTextColor(matchColor)
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .clickable {
+                                                    viewModel.diveIntoNode(matchNode.id)
+                                                    viewModel.setSearchActive(false)
                                                 }
-                                                Spacer(modifier = Modifier.width(10.dp))
-                                                Text(
-                                                    text = matchNode.title,
-                                                    color = TextPrimary,
-                                                    fontSize = 13.sp,
-                                                    fontWeight = FontWeight.Medium,
-                                                    modifier = Modifier.weight(1f)
-                                                )
+                                                .padding(vertical = 6.dp, horizontal = 6.dp)
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(24.dp)
+                                                    .clip(CircleShape)
+                                                    .background(matchColor)
+                                                    .border(1.dp, Color.White, CircleShape),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                val searchIcon = OrbitIcons.getIcon(matchNode.iconName)
+                                                if (searchIcon != null) {
+                                                    Icon(
+                                                        imageVector = searchIcon,
+                                                        contentDescription = null,
+                                                        tint = textColor,
+                                                        modifier = Modifier.size(14.dp)
+                                                    )
+                                                } else {
+                                                    Text(
+                                                        text = matchNode.title.take(1).uppercase().ifBlank { "•" },
+                                                        color = textColor,
+                                                        fontSize = 11.sp,
+                                                        fontWeight = FontWeight.Bold
+                                                    )
+                                                }
                                             }
+                                            Spacer(modifier = Modifier.width(10.dp))
+                                            Text(
+                                                text = matchNode.title,
+                                                color = TextPrimary,
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                modifier = Modifier.weight(1f)
+                                            )
                                         }
                                     }
                                 }
                             }
-                        }
-                    }
-                }
-
-                // 🪐 Floating Orbital Pocket Ring Indicator (حلقة الجيب المداري العائمة)
-                AnimatedVisibility(
-                    visible = pocketNode != null,
-                    enter = fadeIn() + slideInVertically { it / 2 },
-                    exit = fadeOut() + slideOutVertically { it / 2 },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(bottom = 86.dp, end = 20.dp)
-                ) {
-                    if (pocketNode != null) {
-                        FloatingOrbitalPocketBadge(
-                            pocketNode = pocketNode!!,
-                            onClick = { viewModel.openPocketActionDialog() },
-                            onClear = { viewModel.clearPocket() }
-                        )
-                    }
-                }
-
-                // Bottom Controls: Add Node FAB on the LEFT (Start), Reset / Depth on the RIGHT
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.BottomCenter)
-                        .padding(20.dp)
-                ) {
-                    // Floating Add Node Button on the LEFT
-                    FloatingActionButton(
-                        onClick = {
-                            if (pocketNode != null) {
-                                viewModel.openPocketActionDialog()
-                            } else {
-                                viewModel.openAddNodeDialog()
-                            }
-                        },
-                        containerColor = if (pocketNode != null) Color(0xFF06B6D4) else SleekPrimary,
-                        contentColor = if (isDark) Color(0xFF1F2D60) else Color.White,
-                        shape = CircleShape,
-                        modifier = Modifier
-                            .shadow(6.dp, CircleShape)
-                            .border(1.dp, SleekBorderSubtle, CircleShape)
-                            .testTag("add_child_node_fab")
-                    ) {
-                        Icon(
-                            imageVector = if (pocketNode != null) Icons.Default.GeneratingTokens else Icons.Default.Add,
-                            contentDescription = if (pocketNode != null) stringResource(R.string.drop_held_node_cd) else stringResource(R.string.add_idea_node_cd),
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-
-                    // Reset Rotation or Depth indicator on the RIGHT
-                    if (kotlin.math.abs(orbitRotationAngle) > 2f) {
-                        Surface(
-                            shape = CircleShape,
-                            color = SleekSurface,
-                            border = androidx.compose.foundation.BorderStroke(1.dp, SleekBorderSubtle),
-                            shadowElevation = 2.dp,
-                            modifier = Modifier.clickable { viewModel.resetOrbitRotation() }
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Refresh,
-                                    contentDescription = stringResource(R.string.reset_angle_cd),
-                                    tint = TextSecondary,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = stringResource(R.string.reset_angle),
-                                    color = TextSecondary,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
-                        }
-                    } else {
-                        Surface(
-                            shape = RoundedCornerShape(14.dp),
-                            color = SleekSurface,
-                            border = androidx.compose.foundation.BorderStroke(1.dp, SleekBorderSubtle),
-                            shadowElevation = 2.dp
-                        ) {
-                            Text(
-                                text = stringResource(R.string.depth_indicator, breadcrumbs.size),
-                                color = TextSecondary,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                            )
                         }
                     }
                 }
@@ -542,53 +597,150 @@ fun MindMapScreen(
     }
 
     // Dialogs & Sheets
+    if (selectedNodeForImageViewer != null) {
+        val imageNode = selectedNodeForImageViewer!!
+        ImageViewerDialog(
+            node = imageNode,
+            isCentralNode = imageNode.id == centralNode?.id,
+            allNodes = allNodes,
+            onDismiss = { viewModel.closeImageViewer() },
+            onDiveIntoNode = { nodeId ->
+                viewModel.closeImageViewer()
+                viewModel.diveIntoNode(nodeId)
+            },
+            onEditNode = { node ->
+                viewModel.closeImageViewer()
+                viewModel.openEditNodeDialog(node)
+            }
+        )
+    }
+
     if (isAddNodeOpen && centralNode != null) {
         AddNodeDialog(
             parentCentralNode = centralNode,
             onDismiss = { viewModel.closeAddNodeDialog() },
-            onConfirm = { title, colorHex, iconName, notes ->
-                viewModel.createChildNode(title, colorHex, iconName, notes)
+            onConfirm = { title, colorHex, iconName, notes, imageUri ->
+                viewModel.createChildNode(
+                    title = title,
+                    colorHex = colorHex,
+                    iconName = iconName,
+                    notes = notes,
+                    imageUri = imageUri,
+                    targetParentId = centralNode.id
+                )
             }
         )
     }
 
     if (selectedNodeForEdit != null) {
+        val editNode = selectedNodeForEdit!!
         NodeDetailDialog(
-            node = selectedNodeForEdit!!,
+            node = editNode,
             onDismiss = { viewModel.closeEditNodeDialog() },
-            onSave = { id, title, colorHex, iconName, notes, checklist, linkUrl ->
-                viewModel.saveNodeEdits(id, title, colorHex, iconName, notes, checklist, linkUrl)
+            onSave = { id, title, colorHex, iconName, notes, checklist, linkUrl, imageUri, progress, impact, dueDate ->
+                viewModel.saveNodeEdits(id, title, colorHex, iconName, notes, checklist, linkUrl, imageUri, progress, impact, dueDate)
             },
             onDelete = { id -> viewModel.deleteNode(id) },
             onPutInPocket = {
-                viewModel.putNodeInPocket(selectedNodeForEdit!!)
+                viewModel.putNodeInPocket(editNode)
+            },
+            onApplyColorScope = { scope, hex ->
+                viewModel.applyColorWithScope(editNode.id, hex, scope)
+            },
+            onAddShortcut = {
+                nodeForShortcutChoice = editNode
+            },
+            hasChildren = allNodes.any { it.parentId == editNode.id },
+            hasSiblings = allNodes.count { it.parentId == editNode.parentId } > 1,
+            directChildren = allNodes.filter { it.parentId == editNode.id },
+            allNodes = allNodes,
+            onUpdateChildrenProgress = { progressMap ->
+                viewModel.updateChildrenProgress(progressMap)
+            },
+            onImportJsonSubtree = { pId, payload ->
+                viewModel.importNodeJsonSubtree(pId, payload)
+            }
+        )
+    }
+
+    if (nodeForShortcutChoice != null) {
+        val targetNode = nodeForShortcutChoice!!
+        com.example.ui.dialogs.AddShortcutChoiceDialog(
+            itemTitle = targetNode.title,
+            onDismiss = { nodeForShortcutChoice = null },
+            onConfirm = { targetType ->
+                nodeForShortcutChoice = null
+                viewModel.pinNodeShortcutWithTarget(currentMap, targetNode, targetType)
             }
         )
     }
 
     if (nodeForQuickActions != null) {
+        val quickNode = nodeForQuickActions!!
+        val originalTargetId = remember(quickNode, allNodes) {
+            if (quickNode.isSyncTwin) {
+                val directMaster = allNodes.firstOrNull { it.id == quickNode.syncMasterId && it.id != quickNode.id }
+                if (directMaster != null) directMaster.id
+                else if (!quickNode.syncMasterId.isNullOrBlank() && quickNode.id != quickNode.syncMasterId) {
+                    allNodes.filter { it.syncMasterId == quickNode.syncMasterId && it.id != quickNode.id }
+                        .minByOrNull { it.createdAt }?.id
+                } else null
+            } else null
+        }
+
         NodeQuickActionMenu(
-            node = nodeForQuickActions!!,
+            node = quickNode,
             onPutInPocket = {
-                viewModel.putNodeInPocket(nodeForQuickActions!!)
+                viewModel.putNodeInPocket(quickNode)
             },
             onEdit = {
-                val node = nodeForQuickActions!!
                 viewModel.closeQuickActions()
-                viewModel.openEditNodeDialog(node)
+                viewModel.openEditNodeDialog(quickNode)
+            },
+            onViewImage = {
+                viewModel.closeQuickActions()
+                viewModel.openImageViewer(quickNode)
+            },
+            onNavigateToOriginal = if (originalTargetId != null) {
+                {
+                    viewModel.closeQuickActions()
+                    viewModel.navigateToOriginalNode(originalTargetId)
+                }
+            } else null,
+            onAddShortcut = {
+                viewModel.closeQuickActions()
+                nodeForShortcutChoice = quickNode
             },
             onDelete = {
-                val id = nodeForQuickActions!!.id
-                viewModel.deleteNode(id)
+                viewModel.closeQuickActions()
+                nodePendingDeletion = quickNode
             },
-            onDismiss = { viewModel.closeQuickActions() }
+            onDismiss = { viewModel.closeQuickActions() },
+            onApplyColorScope = { scope, hex ->
+                viewModel.applyColorWithScope(quickNode.id, hex, scope)
+            }
         )
     }
 
-    if (isPocketActionDialogOpen && pocketNode != null && centralNode != null) {
+    if (dropTargetAction != null) {
+        val action = dropTargetAction!!
+        PocketActionSheet(
+            pocketNode = action.sourceNode,
+            currentCentralNode = action.targetNode,
+            allNodes = allNodes,
+            isDirectDrop = action.isDirectDrop,
+            onMove = { viewModel.executeDropMove(action.sourceNode.id, action.targetNode.id) },
+            onClone = { viewModel.executeDropClone(action.sourceNode.id, action.targetNode.id) },
+            onSyncTwin = { viewModel.executeDropSyncTwin(action.sourceNode.id, action.targetNode.id) },
+            onClearPocket = { viewModel.closeDropActionForNodes() },
+            onDismiss = { viewModel.closeDropActionForNodes() }
+        )
+    } else if (isPocketActionDialogOpen && pocketNode != null && centralNode != null) {
         PocketActionSheet(
             pocketNode = pocketNode!!,
             currentCentralNode = centralNode,
+            allNodes = allNodes,
+            isDirectDrop = false,
             onMove = { viewModel.applyPocketMoveToCurrentOrbit() },
             onClone = { viewModel.applyPocketCloneToCurrentOrbit() },
             onSyncTwin = { viewModel.applyPocketSyncTwinToCurrentOrbit() },
@@ -606,114 +758,58 @@ fun MindMapScreen(
             exportMarkdown = viewModel.getExportMarkdown()
         )
     }
-}
 
-/**
- * Animated Floating Orbital Pocket badge displayed when a node is held for moving, cloning, or live syncing.
- */
-@Composable
-private fun FloatingOrbitalPocketBadge(
-    pocketNode: MindNodeEntity,
-    onClick: () -> Unit,
-    onClear: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val nodeColor = remember(pocketNode.colorHex) {
-        OrbitColors.parseColor(pocketNode.colorHex)
-    }
-    val textColor = remember(nodeColor) {
-        OrbitColors.getContrastingTextColor(nodeColor)
-    }
-    val icon = remember(pocketNode.iconName) {
-        OrbitIcons.getIcon(pocketNode.iconName)
+    if (isExportDialogOpen && exportTargetMap != null) {
+        ExportMapDialog(
+            map = exportTargetMap!!,
+            nodes = exportTargetNodes,
+            currentNode = centralNode,
+            onDismiss = { viewModel.closeExportDialog() }
+        )
     }
 
-    val infiniteTransition = rememberInfiniteTransition(label = "pocket_halo")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 0.95f,
-        targetValue = 1.06f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulse"
-    )
-
-    Surface(
-        shape = RoundedCornerShape(20.dp),
-        color = SleekSurface.copy(alpha = 0.96f),
-        border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFF06B6D4)),
-        shadowElevation = 8.dp,
-        modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
-            .clickable(onClick = onClick)
-            .testTag("floating_orbital_pocket")
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(start = 10.dp, end = 6.dp, top = 8.dp, bottom = 8.dp)
-        ) {
-            // Glowing pulsing ring
-            Box(
-                modifier = Modifier
-                    .size((36 * pulseScale).dp)
-                    .clip(CircleShape)
-                    .background(nodeColor)
-                    .border(2.dp, Color(0xFF06B6D4), CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                if (icon != null) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = textColor,
-                        modifier = Modifier.size(18.dp)
-                    )
-                } else {
+    if (nodePendingDeletion != null) {
+        val targetNode = nodePendingDeletion!!
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            AlertDialog(
+                onDismissRequest = { nodePendingDeletion = null },
+                title = {
                     Text(
-                        text = pocketNode.title.take(1).uppercase().ifBlank { "•" },
-                        color = textColor,
-                        fontSize = 13.sp,
+                        stringResource(R.string.delete_node_dialog_title),
+                        color = TextPrimary,
                         fontWeight = FontWeight.Bold
                     )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(10.dp))
-
-            Column {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                },
+                text = {
                     Text(
-                        text = stringResource(R.string.synced_badge),
-                        color = Color(0xFF06B6D4),
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold
+                        stringResource(R.string.delete_node_dialog_msg, targetNode.title),
+                        color = TextSecondary
                     )
+                },
+                containerColor = SleekSurface,
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            val id = targetNode.id
+                            nodePendingDeletion = null
+                            viewModel.deleteNode(id)
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBA1A1A)),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            stringResource(R.string.action_delete),
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { nodePendingDeletion = null }) {
+                        Text(stringResource(R.string.action_cancel), color = TextSecondary)
+                    }
                 }
-                Text(
-                    text = pocketNode.title,
-                    color = TextPrimary,
-                    fontSize = 12.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.widthIn(max = 110.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(6.dp))
-
-            IconButton(
-                onClick = onClear,
-                modifier = Modifier.size(26.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = stringResource(R.string.action_clear),
-                    tint = TextTertiary,
-                    modifier = Modifier.size(14.dp)
-                )
-            }
+            )
         }
     }
 }

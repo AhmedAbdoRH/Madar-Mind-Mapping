@@ -7,6 +7,9 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import com.example.data.ThemeMode
 
 private val SleekLightColorScheme = lightColorScheme(
     primary = LightPrimary,
@@ -50,15 +53,44 @@ private val SleekDarkColorScheme = darkColorScheme(
     outlineVariant = DarkBorderSubtle
 )
 
+private val SleekZenBlackColorScheme = darkColorScheme(
+    primary = DarkPrimary,
+    onPrimary = Color(0xFF1F2D60),
+    primaryContainer = Color(0xFF1A1A24),
+    onPrimaryContainer = DarkOnPrimaryContainer,
+    secondary = Color(0xFFC3C5DD),
+    onSecondary = Color(0xFF16161D),
+    secondaryContainer = Color(0xFF1E1E26),
+    onSecondaryContainer = Color(0xFFDFE1F9),
+    tertiary = Color(0xFFE4BAD9),
+    onTertiary = Color(0xFF43273F),
+    background = Color.Black,
+    onBackground = Color(0xFFF3F4F6),
+    surface = Color(0xFF0D0D11),
+    onSurface = Color(0xFFF3F4F6),
+    surfaceVariant = Color(0xFF16161D),
+    onSurfaceVariant = Color(0xFFA1A1AA),
+    outline = Color(0xFF2A2B36),
+    outlineVariant = Color(0xFF1F202B)
+)
+
 @Composable
 fun MyApplicationTheme(
+    themeMode: ThemeMode = ThemeMode.SYSTEM,
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val appColors = if (darkTheme) DarkAppColors else LightAppColors
-    val colorScheme = if (darkTheme) SleekDarkColorScheme else SleekLightColorScheme
+    val (appColors, colorScheme) = when (themeMode) {
+        ThemeMode.ZEN_BLACK -> Pair(ZenBlackAppColors, SleekZenBlackColorScheme)
+        ThemeMode.DARK -> Pair(DarkAppColors, SleekDarkColorScheme)
+        ThemeMode.LIGHT -> Pair(LightAppColors, SleekLightColorScheme)
+        ThemeMode.SYSTEM -> if (darkTheme) Pair(DarkAppColors, SleekDarkColorScheme) else Pair(LightAppColors, SleekLightColorScheme)
+    }
 
-    CompositionLocalProvider(LocalAppColors provides appColors) {
+    CompositionLocalProvider(
+        LocalAppColors provides appColors,
+        LocalLayoutDirection provides LayoutDirection.Ltr
+    ) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,

@@ -30,6 +30,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,9 +39,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -72,16 +75,17 @@ fun CreateMapDialog(
     val textColor = OrbitColors.getContrastingTextColor(activeColor)
 
     Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(24.dp),
-            color = SleekSurface,
-            border = androidx.compose.foundation.BorderStroke(1.dp, SleekBorderSubtle),
-            shadowElevation = 8.dp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp)
-                .testTag("create_map_dialog")
-        ) {
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            Surface(
+                shape = RoundedCornerShape(24.dp),
+                color = SleekSurface,
+                border = androidx.compose.foundation.BorderStroke(1.dp, SleekBorderSubtle),
+                shadowElevation = 8.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+                    .testTag("create_map_dialog")
+            ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -127,6 +131,92 @@ fun CreateMapDialog(
                             text = stringResource(R.string.new_map_dialog_subtitle),
                             color = TextSecondary,
                             fontSize = 12.sp
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Quick Inspiration Presets
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    val goalsTitle = stringResource(R.string.template_goals_title)
+                    val goalsSub = stringResource(R.string.template_goals_sub)
+                    val launchTitle = stringResource(R.string.template_launch_title)
+                    val launchSub = stringResource(R.string.template_launch_sub)
+                    val bsTitle = stringResource(R.string.template_brainstorm_title)
+                    val bsSub = stringResource(R.string.template_brainstorm_sub)
+                    val studyTitle = stringResource(R.string.template_study_title)
+                    val studySub = stringResource(R.string.template_study_sub)
+
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = if (selectedColorHex == "#6366F1") SleekPrimary.copy(alpha = 0.2f) else SleekSurfaceVariant,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, if (selectedColorHex == "#6366F1") SleekPrimary else SleekBorderSubtle),
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                title = goalsTitle
+                                description = goalsSub
+                                selectedColorHex = "#6366F1"
+                                selectedIconName = "flag"
+                            }
+                    ) {
+                        Text(
+                            text = "🎯 $goalsTitle",
+                            color = TextPrimary,
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)
+                        )
+                    }
+
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = if (selectedColorHex == "#06B6D4") SleekPrimary.copy(alpha = 0.2f) else SleekSurfaceVariant,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, if (selectedColorHex == "#06B6D4") SleekPrimary else SleekBorderSubtle),
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                title = launchTitle
+                                description = launchSub
+                                selectedColorHex = "#06B6D4"
+                                selectedIconName = "rocket_launch"
+                            }
+                    ) {
+                        Text(
+                            text = "🚀 $launchTitle",
+                            color = TextPrimary,
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)
+                        )
+                    }
+
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = if (selectedColorHex == "#EC4899") SleekPrimary.copy(alpha = 0.2f) else SleekSurfaceVariant,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, if (selectedColorHex == "#EC4899") SleekPrimary else SleekBorderSubtle),
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                title = bsTitle
+                                description = bsSub
+                                selectedColorHex = "#EC4899"
+                                selectedIconName = "psychology"
+                            }
+                    ) {
+                        Text(
+                            text = "🧠 $bsTitle",
+                            color = TextPrimary,
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)
                         )
                     }
                 }
@@ -179,85 +269,22 @@ fun CreateMapDialog(
                 Spacer(modifier = Modifier.height(14.dp))
 
                 // Theme Color Palette
-                Text(
-                    text = stringResource(R.string.core_theme_color_label),
-                    color = TextSecondary,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold
+                ColorSelectorRow(
+                    selectedColorHex = selectedColorHex,
+                    onColorSelected = { selectedColorHex = it },
+                    title = stringResource(R.string.core_theme_color_label)
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    OrbitColors.nodeColors.take(10).forEach { item ->
-                        val isSelected = item.hex.equals(selectedColorHex, ignoreCase = true)
-                        val checkTint = OrbitColors.getContrastingTextColor(item.color)
-                        Box(
-                            modifier = Modifier
-                                .size(34.dp)
-                                .clip(CircleShape)
-                                .background(item.color)
-                                .clickable { selectedColorHex = item.hex }
-                                .border(
-                                    width = if (isSelected) 2.5.dp else 1.dp,
-                                    color = if (isSelected) SleekPrimary else SleekBorderSubtle,
-                                    shape = CircleShape
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (isSelected) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = null,
-                                    tint = checkTint,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                        }
-                    }
-                }
 
                 Spacer(modifier = Modifier.height(14.dp))
 
                 // Icon selection
-                Text(
-                    text = stringResource(R.string.core_icon_label),
-                    color = TextSecondary,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold
+                IconSelectorRow(
+                    selectedIconName = selectedIconName,
+                    onIconSelected = { selectedIconName = it },
+                    activeColor = activeColor,
+                    title = stringResource(R.string.core_icon_label),
+                    allowNone = false
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    OrbitIcons.icons.take(10).forEach { iconItem ->
-                        val isSelected = iconItem.key.equals(selectedIconName, ignoreCase = true)
-                        Box(
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(if (isSelected) activeColor.copy(alpha = 0.2f) else SleekSurfaceVariant)
-                                .border(
-                                    width = if (isSelected) 1.5.dp else 1.dp,
-                                    color = if (isSelected) SleekPrimary else SleekBorderSubtle,
-                                    shape = RoundedCornerShape(10.dp)
-                                )
-                                .clickable { selectedIconName = iconItem.key },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = iconItem.icon,
-                                contentDescription = iconItem.label,
-                                tint = if (isSelected) SleekPrimary else TextSecondary,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-                }
 
                 Spacer(modifier = Modifier.height(22.dp))
 
@@ -288,6 +315,7 @@ fun CreateMapDialog(
                     }
                 }
             }
+        }
         }
     }
 }

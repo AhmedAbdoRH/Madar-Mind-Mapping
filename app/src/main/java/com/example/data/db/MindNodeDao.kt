@@ -8,6 +8,11 @@ import androidx.room.Update
 import com.example.data.model.MindNodeEntity
 import kotlinx.coroutines.flow.Flow
 
+data class MapNodeCount(
+    val mapId: Long,
+    val count: Int
+)
+
 @Dao
 interface MindNodeDao {
     @Query("SELECT * FROM mind_nodes WHERE mapId = :mapId ORDER BY orderIndex ASC, createdAt ASC")
@@ -15,6 +20,12 @@ interface MindNodeDao {
 
     @Query("SELECT * FROM mind_nodes WHERE mapId = :mapId ORDER BY orderIndex ASC, createdAt ASC")
     suspend fun getAllNodesForMapSync(mapId: Long): List<MindNodeEntity>
+
+    @Query("SELECT mapId, COUNT(*) as count FROM mind_nodes GROUP BY mapId")
+    fun getNodeCountsPerMap(): Flow<List<MapNodeCount>>
+
+    @Query("SELECT COUNT(*) FROM mind_nodes")
+    fun getTotalNodesCount(): Flow<Int>
 
     @Query("SELECT * FROM mind_nodes WHERE id = :id LIMIT 1")
     fun getNodeById(id: String): Flow<MindNodeEntity?>

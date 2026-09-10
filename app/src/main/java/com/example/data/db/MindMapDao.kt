@@ -13,6 +13,9 @@ interface MindMapDao {
     @Query("SELECT * FROM mind_maps ORDER BY updatedAt DESC")
     fun getAllMaps(): Flow<List<MindMapEntity>>
 
+    @Query("SELECT * FROM mind_maps ORDER BY updatedAt DESC")
+    suspend fun getAllMapsSync(): List<MindMapEntity>
+
     @Query("SELECT * FROM mind_maps WHERE id = :id LIMIT 1")
     fun getMapById(id: Long): Flow<MindMapEntity?>
 

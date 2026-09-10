@@ -1,9 +1,15 @@
 package com.example.data.model
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "mind_maps")
+@Entity(
+    tableName = "mind_maps",
+    indices = [
+        Index("updatedAt")
+    ]
+)
 data class MindMapEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

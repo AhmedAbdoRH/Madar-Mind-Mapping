@@ -89,11 +89,12 @@ object OrbitIcons {
         OrbitIconItem("auto_awesome", "AI Spark", Icons.Default.AutoAwesome)
     )
 
+    private val iconMap: Map<String, ImageVector> = icons.associate { it.key.lowercase() to it.icon }
+
     fun getIcon(key: String): ImageVector? {
         if (key.isBlank() || key.equals("none", ignoreCase = true)) {
             return null
         }
-        return icons.firstOrNull { it.key.equals(key, ignoreCase = true) }?.icon
-            ?: Icons.Default.Lightbulb
+        return iconMap[key.lowercase()] ?: Icons.Default.Lightbulb
     }
 }

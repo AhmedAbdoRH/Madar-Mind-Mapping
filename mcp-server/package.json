@@ -1,0 +1,36 @@
+{
+  "name": "madar-mcp-server",
+  "version": "1.0.0",
+  "description": "Model Context Protocol (MCP) Server for Madar Mind Maps (مدار), fully compatible with Claude Desktop and Claude Code.",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "madar-mcp-server": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "claude-desktop",
+    "mindmap",
+    "madar",
+    "orbitmind"
+  ],
+  "author": "Madar Team",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  }
+}

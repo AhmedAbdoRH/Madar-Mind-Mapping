@@ -1,6 +1,8 @@
 {
-  "name": "OrbitMind",
-  "description": "Orbital mind mapping and brainstorming app featuring nested circular maps, radial universe navigation, notes, checklists, and rich visual styling.",
+  "name": "Madar MindMaps",
+  "description": "مدار للخرائط الذهنية - تطبيق التفكير البصري والخرائط المدارية الذكية لتنظيم الأفكار وتفرع المعرفة | Madar Mind Maps: Visual orbital mind mapping and brainstorming application.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "OrbitMind"
+rootProject.name = "Madar MindMaps"
 
 include(":app")

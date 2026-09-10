@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OrbitMind</string>
+    <string name="app_name">Madar MindMaps</string>
 
     <!-- General & Actions -->
     <string name="action_cancel">Cancel</string>
@@ -7,6 +7,8 @@
     <string name="action_save_changes">Save Changes</string>
     <string name="action_create">Create</string>
     <string name="action_create_node">Create Node</string>
+    <string name="action_create_node_confirm">Create Node</string>
+    <string name="action_create_map_confirm">Create Map</string>
     <string name="action_delete">Delete</string>
     <string name="action_duplicate">Duplicate</string>
     <string name="action_close">Close</string>
@@ -14,6 +16,7 @@
     <string name="action_clear">Clear</string>
     <string name="action_more">More</string>
     <string name="action_less">Less</string>
+    <string name="recent_icons_badge">Recent</string>
     <string name="action_options">Options</string>
     <string name="action_search">Search</string>
     <string name="action_outline">Outline</string>
@@ -21,7 +24,7 @@
     <string name="action_selected">Selected</string>
 
     <!-- Universe List Screen -->
-    <string name="universe_list_title">OrbitMind</string>
+    <string name="universe_list_title">Madar Mind Maps</string>
     <string name="search_maps_placeholder">Search mind maps...</string>
     <string name="no_maps_title">No mind maps yet</string>
     <string name="no_maps_subtitle">Tap + on the bottom left to create one</string>
@@ -33,6 +36,7 @@
     <string name="theme_dark">🌙 Dark Mode</string>
     <string name="theme_light">☀️ Light Mode</string>
     <string name="theme_system">⚙️ System Default</string>
+    <string name="theme_pitch_black">🌑 Pitch Black (Zen)</string>
     <string name="toggle_dark_mode_cd">Toggle Dark Mode</string>
 
     <!-- Mind Map Screen & Canvas -->
@@ -49,21 +53,32 @@
     <!-- Create Map Dialog -->
     <string name="create_map_title">New Mind Map</string>
     <string name="create_map_subtitle">Create an orbital mind map for your ideas</string>
+    <string name="new_map_dialog_title">New Mind Map</string>
+    <string name="new_map_dialog_subtitle">Create an orbital mind map for your ideas</string>
     <string name="map_name_label">Mind Map Name / Topic</string>
     <string name="map_name_placeholder">e.g. Q3 Growth Strategy, Tokyo Trip</string>
     <string name="description_optional_label">Description (Optional)</string>
+    <string name="map_desc_label">Description (Optional)</string>
     <string name="map_desc_placeholder">Briefly describe what this mind map is for...</string>
     <string name="core_theme_color">Core Theme Color</string>
+    <string name="core_theme_color_label">Core Theme Color</string>
     <string name="core_icon">Core Icon</string>
+    <string name="core_icon_label">Core Icon</string>
 
     <!-- Add Node Dialog -->
     <string name="add_idea_node_title">Add Idea Node</string>
+    <string name="add_node_dialog_title">Add Idea Node</string>
     <string name="orbiting_parent_subtitle">Orbiting \'%1$s\'</string>
+    <string name="orbiting_parent_format">Orbiting \'%1$s\'</string>
     <string name="idea_title_label">Idea Title</string>
+    <string name="node_title_placeholder">e.g. Design Specs, Backend API</string>
     <string name="idea_title_placeholder">e.g. Design Specs, Backend API</string>
     <string name="color_theme_label">Color Theme</string>
     <string name="icon_symbol_optional">Icon Symbol (Optional)</string>
+    <string name="icon_symbol_label">Icon Symbol (Optional)</string>
+    <string name="icon_none">None</string>
     <string name="quick_note_optional">Quick Note (Optional)</string>
+    <string name="quick_note_label">Quick Note (Optional)</string>
     <string name="quick_note_placeholder">Add details, reminders, or goals...</string>
 
     <!-- Node Detail Dialog -->
@@ -92,6 +107,10 @@
     <!-- Quick Action Menu -->
     <string name="quick_actions_subtitle">Node Quick Actions</string>
     <string name="synced_badge">Synced</string>
+    <string name="return_to_original_node">العودة للعقدة الأصلية</string>
+    <string name="return_to_original_node_cd">العودة وتحديد العقدة الأصلية</string>
+    <string name="action_jump_to_original_title">العودة للعقدة الأصلية</string>
+    <string name="action_jump_to_original_desc">الانتقال وتحديد العقدة الأصلية الرئيسية في مدارها</string>
     <string name="action_hold_pocket_title">Hold in Orbital Pocket</string>
     <string name="action_hold_pocket_desc">Hold node to move, clone, or sync into any orbit</string>
     <string name="action_edit_details_title">Edit Details &amp; Styles</string>
@@ -123,4 +142,244 @@
     <string name="share_outline">Share Outline</string>
     <string name="outline_copied_toast">Markdown copied to clipboard!</string>
     <string name="share_mind_map_chooser">Share Mind Map</string>
+
+    <!-- Drag & Drop Actions -->
+    <string name="drag_hold_pocket">Hold in Pocket</string>
+    <string name="drag_hold_pocket_ar">إمساك في الجيب</string>
+    <string name="drag_edit">Edit</string>
+    <string name="drag_edit_ar">تعديل</string>
+    <string name="drag_delete">Delete</string>
+    <string name="drag_delete_ar">حذف</string>
+    <string name="drag_reorder_hint">Drag along orbit to reorder • Drop below for actions</string>
+
+    <!-- Node Image Feature & System Modes -->
+    <string name="tab_image">Image</string>
+    <string name="node_system_type">Node Type</string>
+    <string name="node_type_idea">Idea Node</string>
+    <string name="node_type_image">Image Node</string>
+    <string name="node_type_idea_ar">Idea</string>
+    <string name="node_type_image_ar">Photo</string>
+    <string name="set_as_default_node_color">Set as default for new nodes</string>
+    <string name="set_as_default_node_color_desc">Future nodes in this map will use this color</string>
+    <string name="default_color_badge">Default Color</string>
+    <string name="node_type_idea_desc">Standard concept with colors, icons, notes, and tasks</string>
+    <string name="node_type_image_desc">Photo-first planet where the image is the celestial body itself</string>
+    <string name="node_image_title">Node Image / Photo</string>
+    <string name="node_image_subtitle">Use an image as the visual planet body</string>
+    <string name="choose_photo">Pick Photo</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="remove_photo">Remove Photo</string>
+    <string name="node_has_image">Photo planet active</string>
+    <string name="node_has_image_desc">The node will appear as a vivid photo sphere in orbit</string>
+    <string name="view_image_fullscreen">View Photo</string>
+    <string name="dive_into_orbits">Dive into Sub-orbits</string>
+    <string name="dive_into_orbits_ar">التعمق في المدارات</string>
+    <string name="image_viewer_title">Photo Planet</string>
+    <string name="image_viewer_hint">Tap on photo to view full size • Tap Dive In to explore sub-ideas</string>
+    <string name="action_view_photo">View Image</string>
+    <string name="action_view_photo_ar">عرض الصورة</string>
+
+    <!-- Export & Backup System -->
+    <string name="action_export">Export</string>
+    <string name="action_export_ar">تصدير</string>
+    <string name="action_import">Import</string>
+    <string name="action_backup_restore">Backup &amp; Restore</string>
+    <string name="export_dialog_title">Export Mind Map</string>
+    <string name="export_dialog_subtitle">Save or share your orbital map &amp; ideas</string>
+    <string name="export_scope_title">Export Scope</string>
+    <string name="export_scope_entire_map">Entire Mind Map</string>
+    <string name="export_scope_entire_map_desc">All orbits, planets, and sub-ideas in this universe</string>
+    <string name="export_scope_current_branch">Current Node &amp; Sub-orbits</string>
+    <string name="export_scope_current_branch_desc">Only the active node (\'%1$s\') and its descendant children</string>
+    <string name="format_orbitmind_json">Madar Map (.madar)</string>
+    <string name="format_orbitmind_json_desc">Full faithful copy with planets, sub-orbits, tasks, notes, links, and embedded photos</string>
+    <string name="format_image_with_bg">Visual Image (.png)</string>
+    <string name="format_image_with_bg_desc">High-resolution graphical diagram with cosmic background</string>
+    <string name="format_image_transparent">Transparent Image (.png)</string>
+    <string name="format_image_transparent_desc">Clean transparent diagram ideal for documents and presentations</string>
+    <string name="format_pdf_document">PDF Document (.pdf)</string>
+    <string name="format_pdf_document_desc">Vector graphic layout with complete structured index and outline</string>
+    <string name="format_markdown">Markdown Outline (.md)</string>
+    <string name="format_markdown_desc">Hierarchical text outline formatted for notes apps and document editors</string>
+    <string name="format_plain_text">Plain Text (.txt)</string>
+    <string name="format_plain_text_desc">Simple clean bulleted text without markup</string>
+    <string name="action_share_file">Share File</string>
+    <string name="action_save_to_device">Save to Device</string>
+    <string name="action_copy_content">Copy to Clipboard</string>
+    <string name="action_share_text">Share Text</string>
+    <string name="exporting_progress">Preparing export package...</string>
+
+    <!-- Import System & Backup Center -->
+    <string name="backup_center_title">Backup &amp; Restore</string>
+    <string name="backup_center_subtitle">Import maps, restore backups, or save your universe</string>
+    <string name="tab_google_drive">Google Drive</string>
+    <string name="tab_import_file">Import File</string>
+    <string name="tab_paste_json">Paste Code</string>
+    <string name="tab_full_backup">Full Universe Backup</string>
+    <string name="gdrive_title">Google Drive Cloud Sync</string>
+    <string name="gdrive_desc">Save and restore your maps directly with Google Drive</string>
+    <string name="gdrive_connect_btn">Link Google Drive Account</string>
+    <string name="gdrive_disconnect_btn">Disconnect Account</string>
+    <string name="gdrive_connected_as">Connected as: %1$s</string>
+    <string name="gdrive_backup_all_btn">Upload Full Backup to Google Drive</string>
+    <string name="gdrive_backup_all_desc">Uploads all maps and universes into your Google Drive in .madar format</string>
+    <string name="gdrive_cloud_backups_title">Cloud Backups on Google Drive</string>
+    <string name="gdrive_refresh_btn">Refresh List</string>
+    <string name="gdrive_no_backups">No Madar Mind Maps backups found on your Google Drive yet</string>
+    <string name="gdrive_download_and_restore">Restore Map</string>
+    <string name="gdrive_delete_file">Delete File</string>
+    <string name="gdrive_uploading_progress">Uploading backup to Google Drive...</string>
+    <string name="gdrive_downloading_progress">Fetching backup from Google Drive...</string>
+    <string name="gdrive_upload_success">Uploaded to Google Drive successfully!</string>
+    <string name="select_backup_file_btn">Select .madar / .json File</string>
+    <string name="select_backup_file_hint">Choose an exported Madar Mind Maps file (.madar / .json) from device storage or Google Drive</string>
+    <string name="paste_json_hint">Paste the JSON map or backup code here...</string>
+    <string name="paste_from_clipboard_btn">Paste from Clipboard</string>
+    <string name="preview_valid_map">Valid Madar Mind Map Detected</string>
+    <string name="preview_valid_full_backup">Valid Full Backup Detected (%1$d maps)</string>
+    <string name="preview_title_label">Map Title:</string>
+    <string name="preview_nodes_count">%1$d planets &amp; nodes</string>
+    <string name="preview_images_count">%1$d embedded photos</string>
+    <string name="import_as_new_copy">Import as New Map</string>
+    <string name="import_replace_existing">Replace &amp; Sync Existing Universe/Map</string>
+    <string name="import_replace_existing_desc">Update nodes and changes in-place without creating duplicates</string>
+    <string name="import_as_new_copy_desc">Create an additional independent copy</string>
+    <string name="confirm_import_btn">Confirm &amp; Import</string>
+    <string name="importing_progress">Restoring map and assets...</string>
+    <string name="full_backup_title">Full Universe Backup</string>
+    <string name="full_backup_desc">Export all your mind maps and ideas in one single secure file</string>
+    <string name="export_all_maps_btn">Export All Maps Backup</string>
+    <string name="import_error_invalid">Invalid or corrupted map file. Please check file format.</string>
+
+    <!-- Professional Color System & Propagation -->
+    <string name="color_system_title">Color Styling &amp; Propagation</string>
+    <string name="color_system_subtitle">Apply color across node, siblings, or entire orbital branches</string>
+    <string name="color_scope_title">Apply Color Scope</string>
+    <string name="color_scope_this_node">This Node Only</string>
+    <string name="color_scope_direct_children">Direct Children</string>
+    <string name="color_scope_all_descendants">All Descendants</string>
+    <string name="color_scope_siblings">Siblings (Same Orbit)</string>
+    <string name="color_scope_entire_branch">Entire Branch (Node + Children)</string>
+    <string name="color_scope_node_siblings">Node + Siblings</string>
+    <string name="color_scope_harmonic_gradient">Harmonic Gradient</string>
+    <string name="color_scope_set_as_primary">Set as Primary Map Color</string>
+
+    <string name="palette_category_core">Core &amp; Classics</string>
+    <string name="palette_category_neon">Cosmic Neon</string>
+    <string name="palette_category_pastel">Soft Pastel</string>
+    <string name="palette_category_business">Modern Corporate</string>
+    <string name="palette_category_earth">Warm Nature</string>
+    <string name="palette_category_cyber">Vibrant Tech</string>
+
+    <string name="apply_color_to_children_btn">Apply to Children</string>
+    <string name="apply_color_to_siblings_btn">Apply to Siblings</string>
+    <string name="apply_color_to_branch_btn">Apply to Branch</string>
+    <string name="apply_harmonic_gradient_btn">Harmonic Branch Gradient</string>
+    <string name="set_as_primary_color_btn">Set as Primary Map Color ⭐</string>
+    <string name="set_as_primary_color_short">Make Primary Color</string>
+    <string name="set_as_primary_color_desc">Sets this color as the core theme tone for the map center</string>
+    <string name="primary_color_set_toast">Set as primary map color successfully!</string>
+    <string name="color_applied_toast">Color applied successfully!</string>
+    <string name="custom_hex_label">Hex Code</string>
+    <string name="custom_hex_placeholder">4F5B92</string>
+    <string name="custom_color_tab">Custom Hex</string>
+    <string name="swatches_tab">Palettes</string>
+    <string name="harmonic_shades_title">Harmonic Orbital Shades</string>
+    <string name="quick_colorize_title">Quick Colorize</string>
+    <string name="quick_colorize_subtitle">Quick color options &amp; orbital propagation</string>
+
+    <!-- Google Sign-In & Profile strings -->
+    <string name="action_sign_in_google">Sign in with Google</string>
+    <string name="account_profile_cd">Google Account</string>
+    <string name="account_dialog_title">Google Account &amp; Cloud</string>
+    <string name="account_signed_in">Signed In</string>
+    <string name="account_signed_out">Not Signed In</string>
+    <string name="account_sign_out">Sign Out</string>
+
+    <!-- Home Dashboard & Discovery Experience -->
+    <string name="app_tagline">Orbital Visual Thinking Space</string>
+    <string name="greeting_morning">Good Morning</string>
+    <string name="greeting_afternoon">Good Afternoon</string>
+    <string name="greeting_evening">Good Evening</string>
+    <string name="greeting_night">Peaceful Night</string>
+    <string name="stats_universes_count">%1$d Universes</string>
+    <string name="stats_nodes_count">%1$d Thoughts</string>
+    <string name="stats_cloud_synced">Drive Synced</string>
+    <string name="stats_cloud_not_synced">Cloud Sync</string>
+    <string name="section_starter_templates">Starter Templates</string>
+    <string name="template_goals_title">Goals &amp; Milestones</string>
+    <string name="template_goals_sub">Career, fitness &amp; life</string>
+    <string name="template_launch_title">Project Launch</string>
+    <string name="template_launch_sub">MVP, UX &amp; marketing</string>
+    <string name="template_brainstorm_title">Brainstorming</string>
+    <string name="template_brainstorm_sub">Freeform creative sparks</string>
+    <string name="template_study_title">Study Digest</string>
+    <string name="template_study_sub">Key concepts &amp; research</string>
+    <string name="section_my_universes">My Universes</string>
+    <string name="view_mode_grid">Grid View</string>
+    <string name="view_mode_list">List View</string>
+    <string name="filter_all">All</string>
+    <string name="filter_recent">Recent</string>
+    <string name="node_count_badge">%1$d thoughts</string>
+    <string name="create_first_map_action">Create Your First Universe</string>
+    <string name="create_new_universe_label">New Universe</string>
+    <string name="clear_search_cd">Clear search</string>
+
+    <!-- Universe Merging & Circular Cosmos -->
+    <string name="action_merge_map">دمج في عالم آخر</string>
+    <string name="merge_map_dialog_title">دمج العوالم</string>
+    <string name="merge_map_dialog_desc">اختر العالم الهدف لدمج «%1$s» داخله كفرع مداري:</string>
+    <string name="merge_confirm_title">تأكيد دمج العوالم</string>
+    <string name="merge_confirm_msg">هل تريد دمج عالم «%1$s» بالكامل داخل عالم «%2$s» كفرع مداري؟</string>
+    <string name="merge_success_toast">تم دمج العالم بنجاح داخل «%1$s»!</string>
+    <string name="drag_to_merge_hint">اسحب وأفلت فوق أي عقدة لدمجها</string>
+    <string name="filter_universes">العوالم الرئيسية</string>
+    <string name="filter_shortcuts">الاختصارات السريعة</string>
+    <string name="drop_to_merge_badge">إفلات للدمج 🪐</string>
+    <string name="action_pin_to_top">تثبيت في البداية 📌</string>
+    <string name="action_unpin">إلغاء التثبيت</string>
+    <string name="pinned_badge_label">مثبت 📌</string>
+    <string name="tab_progress">التقدم</string>
+    <string name="progress_title">نظام التقدم</string>
+    <string name="progress_desc">تفعيل حلقة مقسمة إلى 10 أجزاء حول العقدة لمتابعة نسبة الإنجاز</string>
+    <string name="enable_progress_switch">تفعيل شريط التقدم الدائري</string>
+    <string name="progress_level_label">مستوى التقدم:</string>
+    <string name="progress_completed_badge">مكتمل 100% ✨</string>
+    <string name="progress_parts_format">%1$d / 10 قطع</string>
+
+    <!-- Impact Power System -->
+    <string name="tab_impact">قوة التأثير</string>
+    <string name="impact_title">مستوى قوة التأثير</string>
+    <string name="impact_desc">تحديد مقدار قوة وأهمية التأثير لهذه الفكرة (خمسة مستويات من بدون تأثير إلى مؤثر جداً) وعرضه بشريط دائري مميز على العقدة</string>
+    <string name="enable_impact_switch">تفعيل مقياس قوة التأثير</string>
+    <string name="impact_level_label">مستوى التأثير المختار:</string>
+    <string name="impact_level_1">بدون تأثير</string>
+    <string name="impact_level_2">تأثير منخفض</string>
+    <string name="impact_level_3">تأثير متوسط</string>
+    <string name="impact_level_4">تأثير قوي</string>
+    <string name="impact_level_5">مؤثر جداً</string>
+
+    <!-- Smart Cloud Auto-Sync -->
+    <string name="auto_sync_title">Smart Cloud Auto-Sync</string>
+    <string name="auto_sync_desc">Automatically updates your Google Drive backup in real-time after editing</string>
+    <string name="auto_sync_status_idle">Cloud Synced</string>
+    <string name="auto_sync_status_syncing">Syncing to Drive…</string>
+    <string name="auto_sync_status_success">Last synced: %1$s</string>
+    <string name="auto_sync_status_error">Sync error: %1$s</string>
+    <string name="auto_sync_sync_now">Sync Now</string>
+    <string name="auto_sync_enable_switch">Enable Auto-Sync</string>
+
+    <!-- Due Dates & Deadlines -->
+    <string name="tab_due_date">الموعد والتنبيه</string>
+    <string name="due_date_title">تاريخ الاستحقاق والتنبيهات</string>
+    <string name="due_date_desc">ربط العقدة بموعد نهائي وتاريخ استحقاق مع تنبيه خفيف يغير لون حلقة العقدة وتوهجها عند اقتراب الموعد، لتحويل الخريطة إلى أداة إدارة مشاريع يومية</string>
+    <string name="enable_due_date_switch">تفعيل تاريخ الاستحقاق والموعد النهائي</string>
+    <string name="due_date_pick_button">اختيار التاريخ والوقت</string>
+    <string name="due_date_clear_button">إزالة الموعد</string>
+    <string name="due_date_quick_today">اليوم</string>
+    <string name="due_date_quick_tomorrow">غداً</string>
+    <string name="due_date_quick_3days">خلال 3 أيام</string>
+    <string name="due_date_quick_week">خلال أسبوع</string>
+    <string name="due_date_approaching_warning">⚠️ يقترب الموعد النهائي لهذه العقدة!</string>
+    <string name="due_date_overdue_warning">🚨 لقد فات الموعد النهائي المحدد لهذه العقدة!</string>
 </resources>

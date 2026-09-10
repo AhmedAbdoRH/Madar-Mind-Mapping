@@ -6,13 +6,15 @@ import android.content.SharedPreferences
 enum class ThemeMode {
     LIGHT,
     DARK,
-    SYSTEM;
+    SYSTEM,
+    ZEN_BLACK;
 
     val displayName: String
         get() = when (this) {
             LIGHT -> "Light"
             DARK -> "Dark"
             SYSTEM -> "System"
+            ZEN_BLACK -> "Pitch Black"
         }
 
     val arabicName: String
@@ -20,6 +22,7 @@ enum class ThemeMode {
             LIGHT -> "الوضع الفاتح"
             DARK -> "الوضع الليلي"
             SYSTEM -> "تلقائي (حسب النظام)"
+            ZEN_BLACK -> "وضع الزن (القاتم/المظلم)"
         }
 }
 

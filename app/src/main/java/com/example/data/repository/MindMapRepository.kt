@@ -5,6 +5,7 @@ import com.example.data.db.MindNodeDao
 import com.example.data.model.ChecklistItem
 import com.example.data.model.MindMapEntity
 import com.example.data.model.MindNodeEntity
+import com.example.ui.util.OrbitMindBackupManager
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
@@ -13,6 +14,8 @@ class MindMapRepository(
     private val mindNodeDao: MindNodeDao
 ) {
     val allMaps: Flow<List<MindMapEntity>> = mindMapDao.getAllMaps()
+    val nodeCountsPerMap: Flow<List<com.example.data.db.MapNodeCount>> = mindNodeDao.getNodeCountsPerMap()
+    val totalNodesCount: Flow<Int> = mindNodeDao.getTotalNodesCount()
 
     fun getAllNodesForMap(mapId: Long): Flow<List<MindNodeEntity>> {
         return mindNodeDao.getAllNodesForMap(mapId)
@@ -72,6 +75,42 @@ class MindMapRepository(
         mindMapDao.updateMap(map.copy(updatedAt = System.currentTimeMillis()))
     }
 
+    suspend fun getAllMapsListSync(): List<MindMapEntity> {
+        return mindMapDao.getAllMapsSync()
+    }
+
+    suspend fun replaceMapWithNodes(
+        mapId: Long,
+        updatedMap: MindMapEntity,
+        nodes: List<MindNodeEntity>
+    ) {
+        mindMapDao.updateMap(updatedMap)
+        mindNodeDao.deleteAllNodesForMap(mapId)
+        if (nodes.isNotEmpty()) {
+            mindNodeDao.insertNodes(nodes)
+        }
+    }
+
+    suspend fun insertCustomMapAndNodes(
+        map: MindMapEntity,
+        nodesProvider: (Long) -> List<MindNodeEntity>
+    ): Long {
+        val mapId = mindMapDao.insertMap(map)
+        val nodes = nodesProvider(mapId)
+        if (nodes.isNotEmpty()) {
+            mindNodeDao.insertNodes(nodes)
+        }
+        return mapId
+    }
+
+    suspend fun getAllMapsWithNodesSync(): List<OrbitMindBackupManager.MapExportPackage> {
+        val maps = mindMapDao.getAllMapsSync()
+        return maps.map { map ->
+            val nodes = mindNodeDao.getAllNodesForMapSync(map.id)
+            OrbitMindBackupManager.MapExportPackage(map, nodes)
+        }
+    }
+
     suspend fun deleteMap(mapId: Long) {
         mindNodeDao.deleteAllNodesForMap(mapId)
         mindMapDao.deleteMap(mapId)
@@ -122,7 +161,11 @@ class MindMapRepository(
         notes: String = "",
         checklist: List<ChecklistItem> = emptyList(),
         linkUrl: String = "",
-        syncMasterId: String? = null
+        imageUri: String? = null,
+        syncMasterId: String? = null,
+        progress: Int? = null,
+        impact: Int? = null,
+        dueDate: Long? = null
     ): MindNodeEntity {
         val now = System.currentTimeMillis()
         val allMapNodes = mindNodeDao.getAllNodesForMapSync(mapId)
@@ -146,6 +189,10 @@ class MindMapRepository(
             linkUrl = linkUrl,
             colorHex = colorHex,
             iconName = iconName,
+            imageUri = imageUri,
+            progress = progress,
+            impact = impact,
+            dueDate = dueDate,
             orderIndex = order,
             createdAt = now,
             updatedAt = now
@@ -177,6 +224,10 @@ class MindMapRepository(
                     linkUrl = linkUrl,
                     colorHex = colorHex,
                     iconName = iconName,
+                    imageUri = imageUri,
+                    progress = progress,
+                    impact = impact,
+                    dueDate = dueDate,
                     orderIndex = twinSiblings.size,
                     createdAt = now,
                     updatedAt = now
@@ -220,6 +271,10 @@ class MindMapRepository(
                     linkUrl = node.linkUrl,
                     colorHex = node.colorHex,
                     iconName = node.iconName,
+                    imageUri = node.imageUri,
+                    progress = node.progress,
+                    impact = node.impact,
+                    dueDate = node.dueDate,
                     updatedAt = now
                 )
             }
@@ -232,6 +287,145 @@ class MindMapRepository(
             if (node.parentId == null) {
                 mindMapDao.updateMap(map.copy(title = node.title, themeColorHex = node.colorHex, updatedAt = now))
             } else {
+                mindMapDao.updateMap(map.copy(updatedAt = now))
+            }
+        }
+    }
+
+    /**
+     * Applies a color or harmonic palette to nodes according to the selected ColorApplyScope.
+     */
+    suspend fun applyColorWithScope(
+        nodeId: String,
+        colorHex: String,
+        scope: com.example.ui.util.ColorApplyScope,
+        mapId: Long
+    ) {
+        val allMapNodes = mindNodeDao.getAllNodesForMapSync(mapId)
+        val targetNode = allMapNodes.firstOrNull { it.id == nodeId } ?: return
+        val now = System.currentTimeMillis()
+
+        val updatedNodes = mutableListOf<MindNodeEntity>()
+
+        when (scope) {
+            com.example.ui.util.ColorApplyScope.THIS_NODE_ONLY -> {
+                updatedNodes.add(targetNode.copy(colorHex = colorHex, updatedAt = now))
+            }
+            com.example.ui.util.ColorApplyScope.DIRECT_CHILDREN -> {
+                val directChildren = allMapNodes.filter { it.parentId == nodeId }
+                for (child in directChildren) {
+                    updatedNodes.add(child.copy(colorHex = colorHex, updatedAt = now))
+                }
+            }
+            com.example.ui.util.ColorApplyScope.ALL_DESCENDANTS -> {
+                fun collectChildren(parentId: String) {
+                    val children = allMapNodes.filter { it.parentId == parentId }
+                    for (child in children) {
+                        updatedNodes.add(child.copy(colorHex = colorHex, updatedAt = now))
+                        collectChildren(child.id)
+                    }
+                }
+                collectChildren(nodeId)
+            }
+            com.example.ui.util.ColorApplyScope.SIBLINGS -> {
+                val siblings = allMapNodes.filter { it.parentId == targetNode.parentId && it.id != nodeId }
+                for (sib in siblings) {
+                    updatedNodes.add(sib.copy(colorHex = colorHex, updatedAt = now))
+                }
+            }
+            com.example.ui.util.ColorApplyScope.ENTIRE_BRANCH -> {
+                updatedNodes.add(targetNode.copy(colorHex = colorHex, updatedAt = now))
+                fun collectBranch(parentId: String) {
+                    val children = allMapNodes.filter { it.parentId == parentId }
+                    for (child in children) {
+                        updatedNodes.add(child.copy(colorHex = colorHex, updatedAt = now))
+                        collectBranch(child.id)
+                    }
+                }
+                collectBranch(nodeId)
+            }
+            com.example.ui.util.ColorApplyScope.NODE_AND_SIBLINGS -> {
+                val orbitGroup = allMapNodes.filter { it.parentId == targetNode.parentId }
+                for (node in orbitGroup) {
+                    updatedNodes.add(node.copy(colorHex = colorHex, updatedAt = now))
+                }
+            }
+            com.example.ui.util.ColorApplyScope.HARMONIC_GRADIENT -> {
+                updatedNodes.add(targetNode.copy(colorHex = colorHex, updatedAt = now))
+                fun applyHarmonics(parentId: String, level: Int) {
+                    val children = allMapNodes.filter { it.parentId == parentId }
+                    val levelHex = com.example.ui.util.OrbitColors.getHarmonicToneForLevel(colorHex, level)
+                    for (child in children) {
+                        updatedNodes.add(child.copy(colorHex = levelHex, updatedAt = now))
+                        applyHarmonics(child.id, level + 1)
+                    }
+                }
+                applyHarmonics(nodeId, 1)
+            }
+            com.example.ui.util.ColorApplyScope.SET_AS_PRIMARY_MAP_COLOR -> {
+                updatedNodes.add(targetNode.copy(colorHex = colorHex, updatedAt = now))
+                val root = allMapNodes.firstOrNull { it.parentId == null }
+                if (root != null && root.id != nodeId) {
+                    updatedNodes.add(root.copy(colorHex = colorHex, updatedAt = now))
+                }
+            }
+        }
+
+        if (updatedNodes.isNotEmpty()) {
+            // Also update twin nodes if any node in updatedNodes is a synced twin
+            val allUpdatedWithTwins = mutableListOf<MindNodeEntity>()
+            allUpdatedWithTwins.addAll(updatedNodes)
+
+            for (node in updatedNodes) {
+                if (node.isSyncTwin) {
+                    val syncKey = node.syncMasterId ?: node.id
+                    val twins = allMapNodes.filter { candidate ->
+                        candidate.id != node.id && (
+                            candidate.syncMasterId == syncKey ||
+                            candidate.id == syncKey ||
+                            (node.syncMasterId != null && candidate.syncMasterId == node.syncMasterId)
+                        )
+                    }
+                    for (twin in twins) {
+                        if (!allUpdatedWithTwins.any { it.id == twin.id }) {
+                            allUpdatedWithTwins.add(twin.copy(colorHex = node.colorHex, updatedAt = now))
+                        }
+                    }
+                }
+            }
+
+            mindNodeDao.insertNodes(allUpdatedWithTwins)
+
+            // If root node was updated, update map theme color
+            if (updatedNodes.any { it.parentId == null }) {
+                val rootUpdated = updatedNodes.first { it.parentId == null }
+                val map = mindMapDao.getMapByIdSync(mapId)
+                if (map != null) {
+                    mindMapDao.updateMap(map.copy(themeColorHex = rootUpdated.colorHex, updatedAt = now))
+                }
+            } else {
+                val map = mindMapDao.getMapByIdSync(mapId)
+                if (map != null) {
+                    mindMapDao.updateMap(map.copy(updatedAt = now))
+                }
+            }
+        }
+    }
+
+    /**
+     * Reorders sibling nodes on an orbit according to the list of node IDs.
+     */
+    suspend fun reorderSiblingNodes(orderedNodeIds: List<String>, mapId: Long) {
+        val allMapNodes = mindNodeDao.getAllNodesForMapSync(mapId)
+        val now = System.currentTimeMillis()
+        val updatedNodes = orderedNodeIds.mapIndexedNotNull { index, id ->
+            val node = allMapNodes.firstOrNull { it.id == id }
+            node?.copy(orderIndex = index, updatedAt = now)
+        }
+        if (updatedNodes.isNotEmpty()) {
+            mindNodeDao.insertNodes(updatedNodes)
+            val map = mindMapDao.getMapByIdSync(mapId)
+            if (map != null) {
                 mindMapDao.updateMap(map.copy(updatedAt = now))
             }
         }
@@ -611,5 +805,181 @@ class MindMapRepository(
             addNode(mapId = map3Id, parentId = fitnessNode.id, title = "Strength Training", colorHex = "#F97316", iconName = "bolt")
             addNode(mapId = map3Id, parentId = fitnessNode.id, title = "Evening Walk", colorHex = "#10B981", iconName = "directions_walk")
         }
+    }
+
+    suspend fun createTemplateMap(templateKey: String, isArabic: Boolean = true): Long {
+        return when (templateKey) {
+            "goals" -> {
+                val mapId = createMap(
+                    title = if (isArabic) "أهدافي وإنجازاتي السنوية" else "Annual Goals & Milestones",
+                    description = if (isArabic) "خارطة طريق لتحقيق الطموحات في المسار المهني والصحي والمالي" else "Roadmap for career, fitness, and personal growth",
+                    themeColorHex = "#6366F1",
+                    rootIcon = "flag"
+                )
+                val root = mindNodeDao.getRootNodeSync(mapId)
+                if (root != null) {
+                    val career = addNode(mapId, root.id, if (isArabic) "النمو المهني" else "Career Growth", "#3B82F6", "business_center")
+                    addNode(mapId, career.id, if (isArabic) "مهارات جديدة" else "Skill Mastery", "#06B6D4", "psychology")
+                    addNode(mapId, career.id, if (isArabic) "بناء العلاقات" else "Networking", "#8B5CF6", "group")
+
+                    val health = addNode(mapId, root.id, if (isArabic) "اللياقة والصحة" else "Health & Vitality", "#10B981", "fitness_center")
+                    addNode(mapId, health.id, if (isArabic) "تمارين يومية" else "Daily Workout", "#059669", "bolt")
+                    addNode(mapId, health.id, if (isArabic) "نوم صحي" else "Rest & Sleep", "#34D399", "bedtime")
+
+                    val finance = addNode(mapId, root.id, if (isArabic) "الاستقرار المالي" else "Financial Growth", "#F59E0B", "account_balance_wallet")
+                    addNode(mapId, finance.id, if (isArabic) "ادخار واستثمار" else "Savings & Investing", "#D97706", "trending_up")
+
+                    val mind = addNode(mapId, root.id, if (isArabic) "تطوير الذات" else "Mindset & Learning", "#EC4899", "menu_book")
+                    addNode(mapId, mind.id, if (isArabic) "قراءة كتب" else "Book Digest", "#F43F5E", "auto_stories")
+                }
+                mapId
+            }
+            "launch" -> {
+                val mapId = createMap(
+                    title = if (isArabic) "إطلاق مشروع ومنتج جديد" else "Product & Project Launch",
+                    description = if (isArabic) "مخطط استراتيجي من الفكرة حتى الوصول للمستخدمين" else "End-to-end launch strategy from MVP to market",
+                    themeColorHex = "#06B6D4",
+                    rootIcon = "rocket_launch"
+                )
+                val root = mindNodeDao.getRootNodeSync(mapId)
+                if (root != null) {
+                    val product = addNode(mapId, root.id, if (isArabic) "المنتج والخواص" else "Product & MVP", "#0284C7", "devices")
+                    addNode(mapId, product.id, if (isArabic) "الميزات الأساسية" else "Core Features", "#38BDF8", "checklist")
+                    addNode(mapId, product.id, if (isArabic) "تجربة المستخدم" else "UX & Flow", "#818CF8", "touch_app")
+
+                    val marketing = addNode(mapId, root.id, if (isArabic) "التسويق والجمهور" else "Marketing & Launch", "#F43F5E", "campaign")
+                    addNode(mapId, marketing.id, if (isArabic) "وسائل التواصل" else "Social Media", "#FB7185", "share")
+                    addNode(mapId, marketing.id, if (isArabic) "حملة الإطلاق" else "Launch Event", "#F59E0B", "celebration")
+
+                    val ops = addNode(mapId, root.id, if (isArabic) "البنية والتشغيل" else "Infrastructure & Tech", "#8B5CF6", "cloud")
+                    addNode(mapId, ops.id, if (isArabic) "السيرفرات والأمان" else "Hosting & Security", "#A855F7", "security")
+                }
+                mapId
+            }
+            "brainstorm" -> {
+                val mapId = createMap(
+                    title = if (isArabic) "عصف ذهني وأفكار إبداعية" else "Creative Brainstorming",
+                    description = if (isArabic) "مساحة حرة لجمع الأفكار والربط بين المفاهيم الملهمة" else "Freeform thinking canvas to connect brilliant sparks",
+                    themeColorHex = "#EC4899",
+                    rootIcon = "psychology"
+                )
+                val root = mindNodeDao.getRootNodeSync(mapId)
+                if (root != null) {
+                    val bold = addNode(mapId, root.id, if (isArabic) "أفكار ثورية وجريئة" else "Moonshot Ideas", "#F43F5E", "lightbulb")
+                    addNode(mapId, bold.id, if (isArabic) "حلول خارج الصندوق" else "Out of the box", "#FB923C", "auto_awesome")
+
+                    val quick = addNode(mapId, root.id, if (isArabic) "مكاسب سريعة" else "Quick Wins", "#10B981", "speed")
+                    addNode(mapId, quick.id, if (isArabic) "تطبيقات فورية" else "Immediate Actions", "#34D399", "check_circle")
+
+                    val insp = addNode(mapId, root.id, if (isArabic) "مراجع وإلهام" else "Inspiration & Art", "#8B5CF6", "palette")
+                    addNode(mapId, insp.id, if (isArabic) "تصاميم وأمثلة" else "Visual Moodboard", "#A855F7", "brush")
+                }
+                mapId
+            }
+            "study" -> {
+                val mapId = createMap(
+                    title = if (isArabic) "ملخص دراسي وبحث معرفي" else "Study Digest & Research",
+                    description = if (isArabic) "تلخيص شامل للمفاهيم والدروس والأسئلة المفتاحية" else "Structured synthesis of topics, chapters, and key findings",
+                    themeColorHex = "#F59E0B",
+                    rootIcon = "menu_book"
+                )
+                val root = mindNodeDao.getRootNodeSync(mapId)
+                if (root != null) {
+                    val core = addNode(mapId, root.id, if (isArabic) "المفاهيم المركزية" else "Core Concepts", "#D97706", "star")
+                    addNode(mapId, core.id, if (isArabic) "التعاريف والمصطلحات" else "Key Definitions", "#FBBF24", "bookmark")
+
+                    val practical = addNode(mapId, root.id, if (isArabic) "تطبيقات وأمثلة" else "Case Studies & Examples", "#10B981", "science")
+                    addNode(mapId, practical.id, if (isArabic) "تجارب واقعية" else "Real Scenarios", "#059669", "verified")
+
+                    val notes = addNode(mapId, root.id, if (isArabic) "أسئلة ومراجعة" else "Questions & Flashcards", "#8B5CF6", "help")
+                    addNode(mapId, notes.id, if (isArabic) "نقاط الامتحان" else "Exam Notes", "#A855F7", "quiz")
+                }
+                mapId
+            }
+            else -> {
+                createMap(
+                    title = if (isArabic) "عالم فكري جديد" else "New Mental Universe",
+                    description = "",
+                    themeColorHex = "#6366F1",
+                    rootIcon = "explore"
+                )
+            }
+        }
+    }
+
+    suspend fun mergeMapIntoMap(
+        sourceMapId: Long,
+        targetMapId: Long,
+        targetParentNodeId: String? = null,
+        deleteSourceMap: Boolean = true
+    ): MindNodeEntity? {
+        if (sourceMapId == targetMapId) return null
+        val sourceMap = mindMapDao.getMapByIdSync(sourceMapId) ?: return null
+        val targetMap = mindMapDao.getMapByIdSync(targetMapId) ?: return null
+        val sourceNodes = mindNodeDao.getAllNodesForMapSync(sourceMapId)
+        val targetNodes = mindNodeDao.getAllNodesForMapSync(targetMapId)
+        if (sourceNodes.isEmpty() || targetNodes.isEmpty()) return null
+
+        val targetRootNode = (if (targetParentNodeId != null) targetNodes.firstOrNull { it.id == targetParentNodeId } else null)
+            ?: targetNodes.firstOrNull { it.parentId == null }
+            ?: return null
+
+        val sourceRootNode = sourceNodes.firstOrNull { it.parentId == null }
+            ?: sourceNodes.firstOrNull { it.id == sourceMap.rootNodeId }
+            ?: sourceNodes.first()
+
+        val now = System.currentTimeMillis()
+
+        // Map old node IDs to new IDs
+        val idMapping = mutableMapOf<String, String>()
+        for (node in sourceNodes) {
+            idMapping[node.id] = UUID.randomUUID().toString()
+        }
+
+        val existingTargetSiblings = targetNodes.filter { it.parentId == targetRootNode.id }
+        val newBranchRootId = idMapping[sourceRootNode.id] ?: UUID.randomUUID().toString()
+
+        // Source root node becomes an orbital child of targetRootNode
+        val newBranchRootNode = sourceRootNode.copy(
+            id = newBranchRootId,
+            mapId = targetMapId,
+            parentId = targetRootNode.id,
+            orderIndex = existingTargetSiblings.size,
+            createdAt = now,
+            updatedAt = now
+        )
+
+        val newNodesToInsert = mutableListOf<MindNodeEntity>()
+        newNodesToInsert.add(newBranchRootNode)
+
+        for (node in sourceNodes) {
+            if (node.id == sourceRootNode.id) continue
+            val newId = idMapping[node.id] ?: UUID.randomUUID().toString()
+            val newParentId = if (node.parentId == sourceRootNode.id) {
+                newBranchRootId
+            } else if (node.parentId != null) {
+                idMapping[node.parentId] ?: newBranchRootId
+            } else {
+                newBranchRootId
+            }
+            newNodesToInsert.add(
+                node.copy(
+                    id = newId,
+                    mapId = targetMapId,
+                    parentId = newParentId,
+                    createdAt = now,
+                    updatedAt = now
+                )
+            )
+        }
+
+        mindNodeDao.insertNodes(newNodesToInsert)
+        mindMapDao.updateMap(targetMap.copy(updatedAt = now))
+
+        if (deleteSourceMap) {
+            deleteMap(sourceMapId)
+        }
+
+        return newBranchRootNode
     }
 }
